@@ -1,0 +1,149 @@
+{% extends "base/public_base.html" %}
+{% block title %}{{ product.name }} - {{ settings.get('business_name', 'Baruch Store') }}{% endblock %}
+{% block meta_description %}{{ product.short_description or product.name }}{% endblock %}
+
+{% block body %}
+{% include 'public/_navbar.html' %}
+
+<section class="pt-28 pb-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="text-sm text-gray-500 mb-8" data-aos="fade-up">
+            <a href="{{ url_for('catalog.home') }}" class="hover:text-primary-600">Inicio</a>
+            <span class="mx-2">/</span>
+            <a href="{{ url_for('catalog.catalog', category=product.category_id) }}" class="hover:text-primary-600">{{ product.category.name }}</a>
+            <span class="mx-2">/</span>
+            <span class="text-gray-900">{{ product.name }}</span>
+        </nav>
+
+        <div class="grid lg:grid-cols-2 gap-12">
+            <!-- Gallery -->
+            <div data-aos="fade-right">
+                <div class="aspect-square rounded-2xl overflow-hidden bg-gray-50 mb-4" x-data="{ activeImage: 0 }">
+                    {% if product.images %}
+                    <div class="relative w-full h-full">
+                        {% for img in product.images %}
+                        <img
+                            x-show="activeImage === {{ loop.index0 }}"
+                            src="{{ url_for('static', filename='images/productos/' + img.filename) }}"
+                            alt="{{ product.name }}"
+                            class="w-full h-full object-cover cursor-crosshair"
+                            @mousemove="
+                                const rect = $el.getBoundingClientRect();
+                                const x = ((event.clientX - rect.left) / rect.width) * 100;
+                                const y = ((event.clientY - rect.top) / rect.height) * 100;
+                                $el.style.transformOrigin = x + '% ' + y + '%';
+                            "
+                            @mouseenter="$el.style.transform = 'scale(1.5)'"
+                            @mouseleave="$el.style.transform = 'scale(1)'"
+                        >
+                        {% endfor %}
+                    </div>
+                    {% elif product.primary_image %}
+                    <img src="{{ url_for('static', filename='images/productos/' + product.primary_image) }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center">
+                        <svg class="w-20 h-20 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if product.images|length > 1 %}
+                <div class="flex gap-3 overflow-x-auto pb-2">
+                    {% for img in product.images %}
+                    <button
+                        @click="activeImage = {{ loop.index0 }}"
+                        class="w-20 h-20 rounded-lg overflow-hidden border-2 shrink-0 transition-colors"
+                        :class="activeImage === {{ loop.index0 }} ? 'border-primary-500' : 'border-transparent hover:border-gray-300'"
+                    >
+                        <img src="{{ url_for('static', filename='images/productos/' + img.filename) }}" alt="" class="w-full h-full object-cover">
+                    </button>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Product Info -->
+            <div data-aos="fade-left" data-aos-delay="200">
+                <div class="flex flex-wrap gap-2 mb-3">
+                    {% if product.is_new %}
+                    <span class="bg-teal-500 text-white text-xs font-bold px-3 py-1 rounded-full">Nuevo</span>
+                    {% endif %}
+                    {% if product.is_offer and product.discount_percent %}
+                    <span class="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">-{{ product.discount_percent }}%</span>
+                    {% endif %}
+                    {% if product.is_featured %}
+                    <span class="bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full">Destacado</span>
+                    {% endif %}
+                </div>
+
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">{{ product.name }}</h1>
+
+                {% if product.brand or product.sku %}
+                <div class="flex gap-4 mt-2 text-sm text-gray-500">
+                    {% if product.brand %}<span>Marca: <strong>{{ product.brand }}</strong></span>{% endif %}
+                    {% if product.sku %}<span>SKU: <strong>{{ product.sku }}</strong></span>{% endif %}
+                </div>
+                {% endif %}
+
+                <div class="mt-6 flex items-baseline gap-3">
+                    <span class="text-3xl font-bold text-gray-900">${{ "%.2f"|format(product.price) }}</span>
+                    {% if product.old_price %}
+                    <span class="text-lg text-gray-400 line-through">${{ "%.2f"|format(product.old_price) }}</span>
+                    {% endif %}
+                </div>
+
+                {% if product.short_description %}
+                <p class="mt-4 text-gray-600 leading-relaxed">{{ product.short_description }}</p>
+                {% endif %}
+
+                {% if product.description %}
+                <div class="mt-6">
+                    <h3 class="font-semibold text-gray-900 mb-2">Descripción</h3>
+                    <p class="text-gray-600 leading-relaxed">{{ product.description }}</p>
+                </div>
+                {% endif %}
+
+                {% if product.features %}
+                <div class="mt-6">
+                    <h3 class="font-semibold text-gray-900 mb-3">Características</h3>
+                    <ul class="space-y-2">
+                        {% for feature in product.features %}
+                        <li class="flex items-start gap-2 text-gray-600">
+                            <svg class="w-5 h-5 text-green-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            {{ feature }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <div class="mt-8 space-y-3">
+                    <button @click="$store.cart.addItem({
+                        id: {{ product.id }},
+                        name: '{{ product.name|e }}',
+                        price: {{ product.price }},
+                        image: '{{ product.primary_image or "" }}',
+                        slug: '{{ product.slug }}'
+                    })" class="w-full btn-primary text-base py-4">
+                        Agregar al carrito
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {% if related %}
+        <div class="mt-20">
+            <h2 class="text-2xl font-bold text-gray-900 mb-8" data-aos="fade-up">Productos Relacionados</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {% for product in related %}
+                {% include 'public/_product_card.html' %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+{% include 'public/_footer.html' %}
+{% include 'public/_cart_sidebar.html' %}
+{% endblock %}

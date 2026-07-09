@@ -1,0 +1,86 @@
+{% extends "base/admin_base.html" %}
+{% block title %}Productos - Baruch Store{% endblock %}
+{% block page_title %}Productos{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+    <div class="flex justify-between items-center mb-6">
+        <div class="flex gap-2">
+            <a href="{{ url_for('admin.products') }}" class="px-3 py-1.5 text-sm rounded-lg {% if not selected_category %}bg-primary-50 text-primary-700{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">Todos</a>
+            {% for cat in categories %}
+            <a href="{{ url_for('admin.products', category=cat.id) }}" class="px-3 py-1.5 text-sm rounded-lg {% if selected_category == cat.id %}bg-primary-50 text-primary-700{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">{{ cat.name }}</a>
+            {% endfor %}
+        </div>
+        <a href="#" class="btn-primary text-sm"><i class="fas fa-plus mr-2"></i>Nuevo Producto</a>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-gray-200">
+                    <th class="text-left py-3 px-3 font-medium text-gray-500">Producto</th>
+                    <th class="text-left py-3 px-3 font-medium text-gray-500">Categoría</th>
+                    <th class="text-left py-3 px-3 font-medium text-gray-500">Precio</th>
+                    <th class="text-center py-3 px-3 font-medium text-gray-500">Destacado</th>
+                    <th class="text-center py-3 px-3 font-medium text-gray-500">Nuevo</th>
+                    <th class="text-center py-3 px-3 font-medium text-gray-500">Oferta</th>
+                    <th class="text-center py-3 px-3 font-medium text-gray-500">Activo</th>
+                    <th class="text-right py-3 px-3 font-medium text-gray-500">Acciones</th>
+                </tr>
+            </thead>
+            <tbody hx-target="closest tr" hx-swap="outerHTML">
+                {% for product in products %}
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="py-3 px-3">
+                        <div class="flex items-center gap-3">
+                            {% if product.primary_image %}
+                            <img src="{{ url_for('static', filename='images/productos/' + product.primary_image) }}" alt="{{ product.name }}" class="w-10 h-10 rounded-lg object-cover">
+                            {% else %}
+                            <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center"><i class="fas fa-box text-gray-400"></i></div>
+                            {% endif %}
+                            <div>
+                                <p class="font-medium text-gray-900">{{ product.name }}</p>
+                                <p class="text-xs text-gray-400">{{ product.sku or 'Sin SKU' }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-3 px-3 text-gray-500">{{ product.category.name }}</td>
+                    <td class="py-3 px-3">
+                        <span class="font-medium">${{ "%.2f"|format(product.price) }}</span>
+                        {% if product.old_price %}
+                        <span class="text-xs text-gray-400 line-through ml-1">${{ "%.2f"|format(product.old_price) }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-3 text-center">
+                        <i class="fas fa-star {% if product.is_featured %}text-yellow-400{% else %}text-gray-300{% endif %}"></i>
+                    </td>
+                    <td class="py-3 px-3 text-center">
+                        <i class="fas fa-clock {% if product.is_new %}text-teal-500{% else %}text-gray-300{% endif %}"></i>
+                    </td>
+                    <td class="py-3 px-3 text-center">
+                        <i class="fas fa-tag {% if product.is_offer %}text-red-500{% else %}text-gray-300{% endif %}"></i>
+                    </td>
+                    <td class="py-3 px-3 text-center">
+                        <button hx-get="{{ url_for('admin.toggle_product', product_id=product.id) }}" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors {% if product.is_active %}bg-green-500{% else %}bg-gray-300{% endif %}">
+                            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform {% if product.is_active %}translate-x-6{% else %}translate-x-1{% endif %}"></span>
+                        </button>
+                    </td>
+                    <td class="py-3 px-3 text-right">
+                        <div class="flex justify-end gap-2">
+                            <a href="#" class="p-2 text-gray-400 hover:text-primary-600 transition-colors"><i class="fas fa-edit"></i></a>
+                            <form method="POST" action="{{ url_for('admin.delete_product', product_id=product.id) }}" onsubmit="return confirm('¿Eliminar este producto?')" class="inline">
+                                <button type="submit" class="p-2 text-gray-400 hover:text-red-600 transition-colors"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="py-8 text-center text-gray-400">No hay productos registrados</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

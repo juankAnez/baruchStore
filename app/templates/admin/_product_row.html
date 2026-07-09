@@ -1,0 +1,44 @@
+<tr class="border-b border-gray-100 hover:bg-gray-50">
+    <td class="py-3 px-3">
+        <div class="flex items-center gap-3">
+            {% if product.primary_image %}
+            <img src="{{ url_for('static', filename='images/productos/' + product.primary_image) }}" alt="{{ product.name }}" class="w-10 h-10 rounded-lg object-cover">
+            {% else %}
+            <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center"><i class="fas fa-box text-gray-400"></i></div>
+            {% endif %}
+            <div>
+                <p class="font-medium text-gray-900">{{ product.name }}</p>
+                <p class="text-xs text-gray-400">{{ product.sku or 'Sin SKU' }}</p>
+            </div>
+        </div>
+    </td>
+    <td class="py-3 px-3 text-gray-500">{{ product.category.name }}</td>
+    <td class="py-3 px-3">
+        <span class="font-medium">${{ "%.2f"|format(product.price) }}</span>
+        {% if product.old_price %}
+        <span class="text-xs text-gray-400 line-through ml-1">${{ "%.2f"|format(product.old_price) }}</span>
+        {% endif %}
+    </td>
+    <td class="py-3 px-3 text-center">
+        <i class="fas fa-star {% if product.is_featured %}text-yellow-400{% else %}text-gray-300{% endif %}"></i>
+    </td>
+    <td class="py-3 px-3 text-center">
+        <i class="fas fa-clock {% if product.is_new %}text-teal-500{% else %}text-gray-300{% endif %}"></i>
+    </td>
+    <td class="py-3 px-3 text-center">
+        <i class="fas fa-tag {% if product.is_offer %}text-red-500{% else %}text-gray-300{% endif %}"></i>
+    </td>
+    <td class="py-3 px-3 text-center">
+        <button hx-get="{{ url_for('admin.toggle_product', product_id=product.id) }}" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors {% if product.is_active %}bg-green-500{% else %}bg-gray-300{% endif %}">
+            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform {% if product.is_active %}translate-x-6{% else %}translate-x-1{% endif %}"></span>
+        </button>
+    </td>
+    <td class="py-3 px-3 text-right">
+        <div class="flex justify-end gap-2">
+            <a href="#" class="p-2 text-gray-400 hover:text-primary-600 transition-colors"><i class="fas fa-edit"></i></a>
+            <form method="POST" action="{{ url_for('admin.delete_product', product_id=product.id) }}" onsubmit="return confirm('¿Eliminar este producto?')" class="inline">
+                <button type="submit" class="p-2 text-gray-400 hover:text-red-600 transition-colors"><i class="fas fa-trash"></i></button>
+            </form>
+        </div>
+    </td>
+</tr>

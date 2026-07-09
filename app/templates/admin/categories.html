@@ -1,0 +1,48 @@
+{% extends "base/admin_base.html" %}
+{% block title %}Categorías - Baruch Store{% endblock %}
+{% block page_title %}Categorías{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-lg font-semibold text-gray-800">Todas las categorías</h3>
+        <a href="#" class="btn-primary text-sm"><i class="fas fa-plus mr-2"></i>Nueva Categoría</a>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-gray-200">
+                    <th class="text-left py-3 px-3 font-medium text-gray-500">Nombre</th>
+                    <th class="text-left py-3 px-3 font-medium text-gray-500">Slug</th>
+                    <th class="text-center py-3 px-3 font-medium text-gray-500">Orden</th>
+                    <th class="text-center py-3 px-3 font-medium text-gray-500">Estado</th>
+                    <th class="text-right py-3 px-3 font-medium text-gray-500">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cat in categories %}
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="py-3 px-3 font-medium">{{ cat.name }}</td>
+                    <td class="py-3 px-3 text-gray-500">{{ cat.slug }}</td>
+                    <td class="py-3 px-3 text-center text-gray-500">{{ cat.order }}</td>
+                    <td class="py-3 px-3 text-center">
+                        {% if cat.is_active %}
+                            <span class="badge-success">Activo</span>
+                        {% else %}
+                            <span class="badge-danger">Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-3 text-right">
+                        <button class="p-2 text-gray-400 hover:text-primary-600"><i class="fas fa-edit"></i></button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="py-8 text-center text-gray-400">No hay categorías registradas</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

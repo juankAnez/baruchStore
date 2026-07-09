@@ -1,0 +1,39 @@
+<nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100/50" x-data="{ scrolled: false, mobileOpen: false }" x-init="window.addEventListener('scroll', () => scrolled = window.scrollY > 50)">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <a href="{{ url_for('catalog.home') }}" class="text-xl font-bold text-gray-900">
+                {{ settings.get('business_name', 'Baruch Store') }}
+            </a>
+
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="{{ url_for('catalog.home') }}" class="text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors">Inicio</a>
+                <a href="{{ url_for('catalog.catalog') }}" class="text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors">Catálogo</a>
+                {% for cat in categories %}
+                <a href="{{ url_for('catalog.catalog', category=cat.id) }}" class="text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors">{{ cat.name }}</a>
+                {% endfor %}
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <button @click="$store.cart.open = !$store.cart.open" class="relative p-2 text-gray-700 hover:text-primary-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
+                    <span x-show="$store.cart.count > 0" x-text="$store.cart.count" class="absolute -top-0.5 -right-0.5 bg-primary-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-medium"></span>
+                </button>
+                <button @click="mobileOpen = !mobileOpen" class="md:hidden p-2 text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div x-show="mobileOpen" x-cloak class="md:hidden border-t border-gray-100 pb-4">
+            <div class="flex flex-col space-y-2 pt-4">
+                <a href="{{ url_for('catalog.home') }}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg">Inicio</a>
+                <a href="{{ url_for('catalog.catalog') }}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg">Catálogo</a>
+                {% for cat in categories %}
+                <a href="{{ url_for('catalog.catalog', category=cat.id) }}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg">{{ cat.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</nav>

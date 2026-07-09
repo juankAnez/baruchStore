@@ -1,0 +1,20 @@
+{
+  "name": "baruch-store",
+  "version": "1.0.0",
+  "description": "Catálogo Digital Inteligente Baruch Store",
+  "private": true,
+  "scripts": {
+    "build:css": "npx tailwindcss -i ./app/static/css/input.css -o ./app/static/css/output.css --minify",
+    "watch:css": "npx tailwindcss -i ./app/static/css/input.css -o ./app/static/css/output.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.10"
+  },
+  "dependencies": {
+    "flowbite": "^2.5.2",
+    "alpinejs": "^3.14.3",
+    "gsap": "^3.12.5",
+    "aos": "^2.3.4",
+    "lucide": "^0.453.0"
+  }
+}
