@@ -18,6 +18,8 @@ static/css/output.css
 static/images/productos/*
 static/images/banners/*
 static/images/categories/*
+baruch perfil.jpeg
+bolsa-de-la-compra.png
 !static/images/productos/.gitkeep
 !static/images/banners/.gitkeep
 !static/images/categories/.gitkeep
