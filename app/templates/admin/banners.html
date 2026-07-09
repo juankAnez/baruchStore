@@ -6,7 +6,7 @@
 <div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
     <div class="flex justify-between items-center mb-6">
         <h3 class="text-lg font-semibold text-gray-800">Banners Promocionales</h3>
-        <a href="#" class="btn-primary text-sm"><i class="fas fa-plus mr-2"></i>Nuevo Banner</a>
+        <a href="{{ url_for('admin.banner_create') }}" class="btn-primary text-sm"><i class="fas fa-plus mr-2"></i>Nuevo Banner</a>
     </div>
     <div class="overflow-x-auto">
         <table class="w-full text-sm">
@@ -35,7 +35,10 @@
                         {% endif %}
                     </td>
                     <td class="py-3 px-3 text-right">
-                        <button class="p-2 text-gray-400 hover:text-primary-600"><i class="fas fa-edit"></i></button>
+                        <a href="{{ url_for('admin.banner_edit', banner_id=banner.id) }}" class="p-2 text-gray-400 hover:text-primary-600"><i class="fas fa-edit"></i></a>
+                        <form method="POST" action="{{ url_for('admin.banner_delete', banner_id=banner.id) }}" onsubmit="return confirm('¿Eliminar este banner?')" class="inline">
+                            <button type="submit" class="p-2 text-gray-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
+                        </form>
                     </td>
                 </tr>
                 {% else %}

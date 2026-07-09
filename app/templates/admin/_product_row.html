@@ -35,7 +35,10 @@
     </td>
     <td class="py-3 px-3 text-right">
         <div class="flex justify-end gap-2">
-            <a href="#" class="p-2 text-gray-400 hover:text-primary-600 transition-colors"><i class="fas fa-edit"></i></a>
+            <a href="{{ url_for('admin.product_edit', product_id=product.id) }}" class="p-2 text-gray-400 hover:text-primary-600 transition-colors"><i class="fas fa-edit"></i></a>
+            <form method="POST" action="{{ url_for('admin.duplicate_product', product_id=product.id) }}" class="inline">
+                <button type="submit" class="p-2 text-gray-400 hover:text-teal-600 transition-colors"><i class="fas fa-copy"></i></button>
+            </form>
             <form method="POST" action="{{ url_for('admin.delete_product', product_id=product.id) }}" onsubmit="return confirm('¿Eliminar este producto?')" class="inline">
                 <button type="submit" class="p-2 text-gray-400 hover:text-red-600 transition-colors"><i class="fas fa-trash"></i></button>
             </form>

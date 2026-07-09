@@ -1,0 +1,109 @@
+{% extends "base/admin_base.html" %}
+{% block title %}{{ title }} - Baruch Store{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+    <form method="POST" enctype="multipart/form-data" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.name.label }}</label>
+                {{ form.name(class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition") }}
+                {% for error in form.name.errors %}<p class="text-red-500 text-xs mt-1">{{ error }}</p>{% endfor %}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.sku.label }}</label>
+                {{ form.sku(class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none") }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.category_id.label }}</label>
+                {{ form.category_id(class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none") }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.subcategory.label }}</label>
+                {{ form.subcategory(class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none") }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.brand.label }}</label>
+                {{ form.brand(class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none") }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.price.label }}</label>
+                {{ form.price(class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none", step="0.01") }}
+                {% for error in form.price.errors %}<p class="text-red-500 text-xs mt-1">{{ error }}</p>{% endfor %}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.old_price.label }}</label>
+                {{ form.old_price(class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none", step="0.01") }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.sort_order.label }}</label>
+                {{ form.sort_order(class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none") }}
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.short_description.label }}</label>
+                {{ form.short_description(class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none", rows=3) }}
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.description.label }}</label>
+                {{ form.description(class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none", rows=5) }}
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.features.label }}</label>
+                <p class="text-xs text-gray-400 mb-1">Escribe cada característica en una línea diferente</p>
+                {{ form.features(class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none", rows=4) }}
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.images.label }}</label>
+                <input type="file" name="images" multiple accept="image/*" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none">
+                <p class="text-xs text-gray-400 mt-1">Puedes seleccionar múltiples imágenes. La primera será la principal.</p>
+                {% if product and product.images %}
+                <div class="mt-4 grid grid-cols-4 sm:grid-cols-6 gap-3">
+                    {% for img in product.images %}
+                    <div class="relative group">
+                        <img src="{{ url_for('static', filename='images/productos/' + img.filename) }}" class="w-full aspect-square object-cover rounded-lg border">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
+                            {% if not img.is_primary %}
+                            <form method="POST" action="{{ url_for('admin.set_primary_image', image_id=img.id) }}">
+                                <button class="p-1.5 bg-white rounded text-xs font-medium hover:bg-primary-50">Principal</button>
+                            </form>
+                            {% endif %}
+                            <form method="POST" action="{{ url_for('admin.delete_product_image', image_id=img.id) }}" onsubmit="return confirm('¿Eliminar esta imagen?')">
+                                <button class="p-1.5 bg-red-500 text-white rounded text-xs hover:bg-red-600">Eliminar</button>
+                            </form>
+                        </div>
+                        {% if img.is_primary %}
+                        <span class="absolute top-1 left-1 bg-primary-600 text-white text-[10px] px-1.5 py-0.5 rounded">Principal</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="flex gap-6 pt-2">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    {{ form.is_active(class="w-4 h-4 text-primary-600 rounded focus:ring-primary-500") }}
+                    <span class="text-sm text-gray-700">Activo</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    {{ form.is_featured(class="w-4 h-4 text-primary-600 rounded focus:ring-primary-500") }}
+                    <span class="text-sm text-gray-700">Destacado</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    {{ form.is_new(class="w-4 h-4 text-primary-600 rounded focus:ring-primary-500") }}
+                    <span class="text-sm text-gray-700">Nuevo</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    {{ form.is_offer(class="w-4 h-4 text-primary-600 rounded focus:ring-primary-500") }}
+                    <span class="text-sm text-gray-700">Oferta</span>
+                </label>
+            </div>
+        </div>
+        <div class="mt-8 flex gap-3">
+            <button type="submit" class="btn-primary"><i class="fas fa-save mr-2"></i>Guardar</button>
+            <a href="{{ url_for('admin.products') }}" class="btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
