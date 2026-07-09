@@ -57,7 +57,13 @@ def product_create():
     form.category_id.choices = [(c.id, c.name) for c in Category.query.order_by(Category.name).all()]
 
     if form.validate_on_submit():
-        features_list = [f.strip() for f in form.features.data.split('\n') if f.strip()] if form.features.data else []
+        raw = form.features.data
+        if isinstance(raw, list):
+            features_list = [f.strip() for f in raw if f and f.strip()]
+        elif raw:
+            features_list = [f.strip() for f in raw.split('\n') if f.strip()]
+        else:
+            features_list = []
 
         product = Product(
             name=form.name.data,
@@ -97,6 +103,10 @@ def product_create():
         flash('Producto creado correctamente', 'success')
         return redirect(url_for('admin.products'))
 
+    if request.method == 'POST' and form.errors:
+        for field, errs in form.errors.items():
+            flash(f'{field}: {", ".join(errs)}', 'danger')
+
     return render_template('admin/product_form.html', form=form, title='Nuevo Producto')
 
 
@@ -111,7 +121,13 @@ def product_edit(product_id):
         form.features.data = '\n'.join(product.features) if product.features else ''
 
     if form.validate_on_submit():
-        features_list = [f.strip() for f in form.features.data.split('\n') if f.strip()] if form.features.data else []
+        raw = form.features.data
+        if isinstance(raw, list):
+            features_list = [f.strip() for f in raw if f and f.strip()]
+        elif raw:
+            features_list = [f.strip() for f in raw.split('\n') if f.strip()]
+        else:
+            features_list = []
 
         product.name = form.name.data
         product.sku = form.sku.data or ''
@@ -149,6 +165,10 @@ def product_edit(product_id):
         db.session.commit()
         flash('Producto actualizado correctamente', 'success')
         return redirect(url_for('admin.products'))
+
+    if request.method == 'POST' and form.errors:
+        for field, errs in form.errors.items():
+            flash(f'{field}: {", ".join(errs)}', 'danger')
 
     return render_template('admin/product_form.html', form=form, product=product, title='Editar Producto')
 
@@ -256,11 +276,15 @@ def category_create():
             except ValueError as e:
                 flash(str(e), 'warning')
 
+
         flash('Categoría creada correctamente', 'success')
         return redirect(url_for('admin.categories'))
 
-    return render_template('admin/category_form.html', form=form, title='Nueva Categoría')
+    if request.method == 'POST' and form.errors:
+        for field, errs in form.errors.items():
+            flash(f'{field}: {", ".join(errs)}', 'danger')
 
+    return render_template('admin/category_form.html', form=form, title='Nueva Categoría')
 
 @admin_bp.route('/categories/edit/<int:category_id>', methods=['GET', 'POST'])
 @login_required
@@ -289,6 +313,10 @@ def category_edit(category_id):
 
         flash('Categoría actualizada correctamente', 'success')
         return redirect(url_for('admin.categories'))
+
+    if request.method == 'POST' and form.errors:
+        for field, errs in form.errors.items():
+            flash(f'{field}: {", ".join(errs)}', 'danger')
 
     return render_template('admin/category_form.html', form=form, category=category, title='Editar Categoría')
 
@@ -341,6 +369,10 @@ def banner_create():
         flash('Banner creado correctamente', 'success')
         return redirect(url_for('admin.banners'))
 
+    if request.method == 'POST' and form.errors:
+        for field, errs in form.errors.items():
+            flash(f'{field}: {", ".join(errs)}', 'danger')
+
     return render_template('admin/banner_form.html', form=form, title='Nuevo Banner')
 
 
@@ -372,6 +404,10 @@ def banner_edit(banner_id):
 
         flash('Banner actualizado correctamente', 'success')
         return redirect(url_for('admin.banners'))
+
+    if request.method == 'POST' and form.errors:
+        for field, errs in form.errors.items():
+            flash(f'{field}: {", ".join(errs)}', 'danger')
 
     return render_template('admin/banner_form.html', form=form, banner=banner, title='Editar Banner')
 

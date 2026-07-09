@@ -66,10 +66,12 @@
                         <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
                             {% if not img.is_primary %}
                             <form method="POST" action="{{ url_for('admin.set_primary_image', image_id=img.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button class="p-1.5 bg-white rounded text-xs font-medium hover:bg-primary-50">Principal</button>
                             </form>
                             {% endif %}
                             <form method="POST" action="{{ url_for('admin.delete_product_image', image_id=img.id) }}" onsubmit="return confirm('¿Eliminar esta imagen?')">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button class="p-1.5 bg-red-500 text-white rounded text-xs hover:bg-red-600">Eliminar</button>
                             </form>
                         </div>
