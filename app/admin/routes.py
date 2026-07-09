@@ -438,6 +438,23 @@ def settings():
                 else:
                     setting = BusinessSetting(key=key, value=value)
                     db.session.add(setting)
+
+        file = request.files.get('logo')
+        if file and file.filename:
+            try:
+                filename = save_image(file, 'logo', convert_webp=True)
+                setting = BusinessSetting.query.filter_by(key='logo').first()
+                if setting:
+                    if setting.value:
+                        from app.services.image_service import delete_image
+                        delete_image(setting.value, 'logo')
+                    setting.value = filename
+                else:
+                    setting = BusinessSetting(key='logo', value=filename)
+                    db.session.add(setting)
+            except ValueError as e:
+                flash(str(e), 'warning')
+
         db.session.commit()
         flash('Configuración guardada correctamente', 'success')
         return redirect(url_for('admin.settings'))

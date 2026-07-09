@@ -3,52 +3,71 @@
 
 {% block content %}
 {% set cards = [
-    {'icon': 'fas fa-box', 'label': 'Total Productos', 'value': total_products, 'color': 'bg-blue-500'},
-    {'icon': 'fas fa-check-circle', 'label': 'Activos', 'value': active_products, 'color': 'bg-green-500'},
-    {'icon': 'fas fa-eye-slash', 'label': 'Ocultos', 'value': hidden_products, 'color': 'bg-yellow-500'},
-    {'icon': 'fas fa-tags', 'label': 'Categorías', 'value': total_categories, 'color': 'bg-purple-500'},
-    {'icon': 'fas fa-star', 'label': 'Destacados', 'value': featured_products, 'color': 'bg-orange-500'},
-    {'icon': 'fas fa-clock', 'label': 'Nuevos', 'value': new_products, 'color': 'bg-teal-500'},
+    {'icon': 'fas fa-box', 'label': 'Total Productos', 'value': total_products, 'color': 'bg-brand-500', 'bg': 'bg-brand-50'},
+    {'icon': 'fas fa-check-circle', 'label': 'Activos', 'value': active_products, 'color': 'bg-emerald-500', 'bg': 'bg-emerald-50'},
+    {'icon': 'fas fa-eye-slash', 'label': 'Ocultos', 'value': hidden_products, 'color': 'bg-amber-500', 'bg': 'bg-amber-50'},
+    {'icon': 'fas fa-tags', 'label': 'Categorías', 'value': total_categories, 'color': 'bg-violet-500', 'bg': 'bg-violet-50'},
+    {'icon': 'fas fa-star', 'label': 'Destacados', 'value': featured_products, 'color': 'bg-orange-500', 'bg': 'bg-orange-50'},
+    {'icon': 'fas fa-clock', 'label': 'Nuevos', 'value': new_products, 'color': 'bg-teal-500', 'bg': 'bg-teal-50'},
 ] %}
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
+
+<!-- Stats Grid -->
+<div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
     {% for card in cards %}
-    <div class="bg-white rounded-xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow">
-        <div class="flex items-center justify-between mb-3">
-            <div class="{{ card.color }} w-10 h-10 rounded-lg flex items-center justify-center">
-                <i class="{{ card.icon }} text-white"></i>
+    <div class="card p-5 group hover:shadow-card-hover">
+        <div class="flex items-center justify-between mb-4">
+            <div class="{{ card.bg }} w-11 h-11 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <i class="{{ card.icon }} {{ card.color }} text-lg"></i>
             </div>
         </div>
-        <p class="text-2xl font-bold text-gray-900">{{ card.value }}</p>
-        <p class="text-sm text-gray-500">{{ card.label }}</p>
+        <p class="text-3xl font-display font-extrabold text-surface-900">{{ card.value }}</p>
+        <p class="text-sm text-surface-500 mt-1">{{ card.label }}</p>
     </div>
     {% endfor %}
 </div>
 
-<div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-    <h3 class="text-lg font-semibold text-gray-800 mb-4">Últimos Productos Agregados</h3>
+<!-- Latest Products -->
+<div class="card">
+    <div class="px-6 py-5 border-b border-surface-100">
+        <div class="flex items-center justify-between">
+            <h3 class="text-lg font-display font-bold text-surface-900">Últimos Productos</h3>
+            <a href="{{ url_for('admin.products') }}" class="text-sm font-medium text-brand-600 hover:text-brand-700 transition-colors">Ver todos →</a>
+        </div>
+    </div>
     <div class="overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
-                <tr class="border-b border-gray-200">
-                    <th class="text-left py-3 px-2 font-medium text-gray-500">Producto</th>
-                    <th class="text-left py-3 px-2 font-medium text-gray-500">Precio</th>
-                    <th class="text-left py-3 px-2 font-medium text-gray-500">Estado</th>
-                    <th class="text-left py-3 px-2 font-medium text-gray-500">Fecha</th>
+                <tr class="border-b border-surface-100 bg-surface-50">
+                    <th class="text-left py-3 px-6 font-semibold text-surface-500 text-xs uppercase tracking-wider">Producto</th>
+                    <th class="text-left py-3 px-6 font-semibold text-surface-500 text-xs uppercase tracking-wider">Precio</th>
+                    <th class="text-center py-3 px-6 font-semibold text-surface-500 text-xs uppercase tracking-wider">Estado</th>
+                    <th class="text-left py-3 px-6 font-semibold text-surface-500 text-xs uppercase tracking-wider">Fecha</th>
                 </tr>
             </thead>
             <tbody>
                 {% for product in latest_products %}
-                <tr class="border-b border-gray-100 hover:bg-gray-50">
-                    <td class="py-3 px-2">{{ product.name }}</td>
-                    <td class="py-3 px-2">${{ "%.2f"|format(product.price) }}</td>
-                    <td class="py-3 px-2">
+                <tr class="border-b border-surface-50 hover:bg-surface-50 transition-colors">
+                    <td class="py-4 px-6">
+                        <div class="flex items-center gap-3">
+                            {% if product.primary_image %}
+                            <img src="{{ url_for('static', filename='images/productos/' + product.primary_image) }}" alt="{{ product.name }}" class="w-10 h-10 rounded-xl object-cover">
+                            {% else %}
+                            <div class="w-10 h-10 rounded-xl bg-surface-100 flex items-center justify-center">
+                                <i class="fas fa-box text-surface-400"></i>
+                            </div>
+                            {% endif %}
+                            <span class="font-medium text-surface-900">{{ product.name }}</span>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 font-semibold text-surface-900">${{ "%.2f"|format(product.price) }}</td>
+                    <td class="py-4 px-6 text-center">
                         {% if product.is_active %}
-                            <span class="badge-success">Activo</span>
+                        <span class="badge-success">Activo</span>
                         {% else %}
-                            <span class="badge-danger">Inactivo</span>
+                        <span class="badge-danger">Inactivo</span>
                         {% endif %}
                     </td>
-                    <td class="py-3 px-2 text-gray-500">{{ product.created_at.strftime('%d/%m/%Y') }}</td>
+                    <td class="py-4 px-6 text-surface-500">{{ product.created_at.strftime('%d/%m/%Y') }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

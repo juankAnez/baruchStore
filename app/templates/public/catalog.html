@@ -1,64 +1,214 @@
 {% extends "base/public_base.html" %}
-{% block title %}Catálogo - {{ settings.get('business_name', 'Baruch Store') }}{% endblock %}
+{% block title %}Catálogo — {{ settings.get('business_name', 'Baruch Store') }}{% endblock %}
+{% block meta_description %}Explora toda nuestra colección de productos. Filtra por categorías y encuentra tu estilo único en Baruch Store.{% endblock %}
 
 {% block body %}
 {% include 'public/_navbar.html' %}
 
-<section class="pt-28 pb-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="mb-8" data-aos="fade-up">
-            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Catálogo</h1>
-            <p class="mt-2 text-gray-500">Explora todos nuestros productos</p>
-        </div>
+<div class="bg-white" x-data="catalogApp('{{ selected_category or "" }}')" x-init="init()">
 
-        <!-- Filters Bar -->
-        <div class="flex flex-col sm:flex-row gap-4 mb-8" data-aos="fade-up" data-aos-delay="100">
-            <!-- Search -->
-            <div class="relative flex-1">
-                <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                <input
-                    type="text"
-                    placeholder="Buscar productos..."
-                    hx-get="{{ url_for('catalog.search_products') }}"
-                    hx-trigger="keyup changed delay:300ms"
-                    hx-target="#search-results"
-                    hx-indicator="#search-spinner"
-                    name="q"
-                    class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all bg-gray-50"
-                >
-            </div>
-            <!-- Category Filter -->
-            <select
-                hx-get="{{ url_for('catalog.catalog') }}"
-                hx-trigger="change"
-                hx-target="#products-grid"
-                name="category"
-                class="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition bg-gray-50 text-gray-700"
-            >
-                <option value="">Todas las categorías</option>
-                {% for cat in categories %}
-                <option value="{{ cat.id }}" {% if selected_category == cat.id %}selected{% endif %}>{{ cat.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <!-- Search Results Dropdown -->
-        <div id="search-results" class="relative mb-8"></div>
-
-        <!-- Products Grid -->
-        <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {% for product in products %}
-            {% include 'public/_product_card.html' %}
-            {% else %}
-            <div class="col-span-full text-center py-16">
-                <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                <p class="text-gray-400 text-lg">No se encontraron productos</p>
-            </div>
-            {% endfor %}
-        </div>
+  <!-- ══ CATALOG HERO HEADER ══ -->
+  <div class="relative bg-gradient-to-b from-brand-50/60 to-white border-b border-gray-100/80 pt-24 pb-10 lg:pt-28 lg:pb-12">
+    <div class="absolute inset-0 overflow-hidden">
+      <div class="absolute -top-24 right-0 w-80 h-80 bg-brand-100/30 rounded-full blur-[80px]"></div>
+      <div class="absolute top-0 left-10 w-60 h-60 bg-amber-100/20 rounded-full blur-[70px]"></div>
     </div>
-</section>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+        <div data-aos="fade-up">
+          <p class="text-[11px] font-black text-brand-600 uppercase tracking-[0.2em] mb-2">
+            <span class="inline-flex items-center gap-1.5">
+              <i data-lucide="store" class="w-3.5 h-3.5"></i>
+              Baruch Store
+            </span>
+          </p>
+          <h1 class="text-4xl sm:text-5xl font-display font-black text-gray-900 tracking-tight leading-none">
+            Catálogo
+            <span class="block text-brand-600 mt-0.5">de Productos</span>
+          </h1>
+          <p class="mt-3 text-sm text-gray-500 max-w-sm leading-relaxed">Colección curada con los mejores estilos y calidades para ti.</p>
+        </div>
+
+        <!-- Stats bar -->
+        <div class="flex gap-6 lg:gap-8" data-aos="fade-up" data-aos-delay="100">
+          <div class="text-center lg:text-right">
+            <p class="text-2xl font-black text-gray-900">{{ products|length }}</p>
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Productos</p>
+          </div>
+          <div class="w-px bg-gray-200"></div>
+          <div class="text-center lg:text-right">
+            <p class="text-2xl font-black text-gray-900">{{ categories|length }}</p>
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Categorías</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STICKY FILTER BAR ══ -->
+  <div class="sticky top-[64px] z-40 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-soft">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row gap-3 py-3.5">
+
+        <!-- Search Input -->
+        <div class="relative flex-1 min-w-0">
+          <i data-lucide="search" class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+          <input
+            type="text"
+            id="catalog-search"
+            name="q"
+            placeholder="Buscar por nombre, marca o descripción..."
+            hx-get="{{ url_for('catalog.catalog') }}"
+            hx-trigger="keyup changed delay:350ms"
+            hx-target="#products-grid"
+            hx-indicator="#search-spinner"
+            x-model="searchQuery"
+            class="w-full pl-10 pr-10 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 focus:bg-white"
+          >
+          <input type="hidden" name="category" :value="selectedCategory">
+          <div id="search-spinner" class="htmx-indicator absolute right-3.5 top-1/2 -translate-y-1/2">
+            <div class="w-4 h-4 border-2 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <!-- Clear button -->
+          <button
+            x-show="searchQuery.length > 0"
+            @click="searchQuery = ''; document.getElementById('catalog-search').value = ''; document.getElementById('catalog-search').dispatchEvent(new Event('keyup'))"
+            class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors"
+            x-cloak
+          >
+            <i data-lucide="x-circle" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- View mode toggle -->
+        <div class="flex items-center gap-1 bg-gray-100 rounded-xl p-1 shrink-0">
+          <button
+            @click="gridCols = 4"
+            :class="gridCols === 4 ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400 hover:text-gray-600'"
+            class="p-1.5 rounded-lg transition-all duration-150"
+            title="Vista cuadrícula"
+          >
+            <i data-lucide="grid-2x2" class="w-4 h-4"></i>
+          </button>
+          <button
+            @click="gridCols = 2"
+            :class="gridCols === 2 ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400 hover:text-gray-600'"
+            class="p-1.5 rounded-lg transition-all duration-150"
+            title="Vista lista"
+          >
+            <i data-lucide="layout-list" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Category Chips Row -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-3 pt-0.5 no-scrollbar -mx-2 px-2">
+        <!-- All chip -->
+        <button
+          type="button"
+          hx-get="{{ url_for('catalog.catalog') }}"
+          hx-target="#products-grid"
+          hx-trigger="click"
+          hx-include="[name='q']"
+          @click="selectedCategory = ''; filterLabel = 'Todas'"
+          :class="selectedCategory === '' ? 'bg-gray-900 text-white border-gray-900 shadow-md scale-[1.02]' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-900 hover:text-gray-900'"
+          class="inline-flex items-center gap-1.5 pl-3.5 pr-4 py-1.5 text-xs font-bold rounded-full border transition-all duration-200 whitespace-nowrap cursor-pointer shrink-0"
+        >
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 shrink-0"></i>
+          <span>Todo</span>
+        </button>
+
+        {% for cat in categories %}
+        <button
+          type="button"
+          hx-get="{{ url_for('catalog.catalog', category=cat.id) }}"
+          hx-target="#products-grid"
+          hx-trigger="click"
+          hx-include="[name='q']"
+          @click="selectedCategory = '{{ cat.id }}'; filterLabel = '{{ cat.name }}'"
+          :class="selectedCategory === '{{ cat.id }}' ? 'bg-gray-900 text-white border-gray-900 shadow-md scale-[1.02]' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-900 hover:text-gray-900'"
+          class="inline-flex items-center gap-1.5 pl-3.5 pr-4 py-1.5 text-xs font-bold rounded-full border transition-all duration-200 whitespace-nowrap cursor-pointer shrink-0"
+        >
+          <i data-lucide="{{ cat.icon or 'package' }}" class="w-3.5 h-3.5 shrink-0"></i>
+          <span>{{ cat.name }}</span>
+        </button>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MAIN CONTENT ══ -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
+
+    <!-- Active filter label + count -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-2.5">
+        <div class="w-1 h-5 bg-brand-500 rounded-full"></div>
+        <span class="text-sm font-bold text-gray-800" x-text="filterLabel"></span>
+        <span class="text-xs text-gray-400 font-medium">({{ products|length }} resultados)</span>
+      </div>
+      <div class="text-xs text-gray-400 hidden sm:flex items-center gap-1.5">
+        <i data-lucide="info" class="w-3.5 h-3.5"></i>
+        <span>Haz clic en un producto para ver más detalles</span>
+      </div>
+    </div>
+
+    <!-- Products Grid — dynamic cols driven by Alpine -->
+    <div
+      id="products-grid"
+      :class="gridCols === 4
+        ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5'
+        : 'grid grid-cols-1 sm:grid-cols-2 gap-5'"
+    >
+      {% for product in products %}
+      {% include 'public/_product_card.html' %}
+      {% else %}
+
+      <!-- Empty state -->
+      <div class="col-span-full py-24 flex flex-col items-center justify-center text-center">
+        <div class="relative mb-6">
+          <div class="w-20 h-20 bg-brand-50 rounded-3xl flex items-center justify-center mx-auto">
+            <i data-lucide="search-x" class="w-9 h-9 text-brand-400"></i>
+          </div>
+          <div class="absolute -top-1 -right-1 w-5 h-5 bg-amber-400 rounded-full flex items-center justify-center shadow-sm">
+            <i data-lucide="x" class="w-3 h-3 text-white stroke-[3]"></i>
+          </div>
+        </div>
+        <h3 class="text-xl font-display font-extrabold text-gray-900 mb-2">Sin resultados</h3>
+        <p class="text-sm text-gray-500 max-w-xs leading-relaxed mb-6">
+          No encontramos productos con esos criterios. Prueba con otro término o explora todas las categorías.
+        </p>
+        <a href="{{ url_for('catalog.catalog') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white text-sm font-bold rounded-xl hover:bg-brand-600 transition-colors shadow-sm">
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+          Ver todo el catálogo
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
 
 {% include 'public/_footer.html' %}
 {% include 'public/_cart_sidebar.html' %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function catalogApp(initialCategory) {
+    return {
+      selectedCategory: initialCategory,
+      searchQuery: '',
+      gridCols: 4,
+      filterLabel: initialCategory ? 'Filtrado' : 'Todas las categorías',
+      init() {
+        // Re-init icons when HTMX swaps content
+        document.getElementById('products-grid')?.addEventListener('htmx:afterSwap', () => {
+          if (window.lucide) lucide.createIcons();
+        });
+      }
+    }
+  }
+</script>
 {% endblock %}

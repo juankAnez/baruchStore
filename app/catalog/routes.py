@@ -1,6 +1,6 @@
 from flask import render_template, request
 from app.catalog import catalog_bp
-from app.models.product import Product
+from app.models.product import Product, ProductImage
 from app.models.category import Category
 from app.models.banner import Banner
 from app.models.setting import BusinessSetting
@@ -13,49 +13,55 @@ def get_settings():
 
 @catalog_bp.route('/')
 def home():
-    settings = get_settings()
-    banners = Banner.query.filter_by(is_active=True).order_by(Banner.sort_order.asc()).all()
-    featured = Product.query.filter_by(is_active=True, is_featured=True).order_by(Product.sort_order.asc()).limit(8).all()
-    new_products = Product.query.filter_by(is_active=True, is_new=True).order_by(Product.created_at.desc()).limit(8).all()
-    categories = Category.query.filter_by(is_active=True).order_by(Category.order.asc()).all()
-    return render_template('public/home.html', **locals())
+    ctx = {'settings': get_settings()}
+    ctx['banners'] = Banner.query.filter_by(is_active=True).order_by(Banner.sort_order.asc()).all()
+    ctx['featured'] = Product.query.filter_by(is_active=True, is_featured=True).order_by(Product.sort_order.asc()).limit(8).all()
+    ctx['new_products'] = Product.query.filter_by(is_active=True, is_new=True).order_by(Product.created_at.desc()).limit(8).all()
+    ctx['categories'] = Category.query.filter_by(is_active=True).order_by(Category.order.asc()).all()
+    return render_template('public/home.html', **ctx)
 
 
 @catalog_bp.route('/catalogo')
 def catalog():
-    settings = get_settings()
-    category_id = request.args.get('category', type=int)
-    search = request.args.get('q', '').strip()
-    min_price = request.args.get('min', type=float)
-    max_price = request.args.get('max', type=float)
+    ctx = {'settings': get_settings()}
+    ctx['category_id'] = request.args.get('category', type=int)
+    ctx['search'] = request.args.get('q', '').strip()
+    ctx['min_price'] = request.args.get('min', type=float)
+    ctx['max_price'] = request.args.get('max', type=float)
 
-    query = Product.query.filter_by(is_active=True)
+    q = Product.query.filter_by(is_active=True)
 
-    if category_id:
-        query = query.filter_by(category_id=category_id)
-    if search:
-        query = query.filter(Product.name.ilike(f'%{search}%'))
-    if min_price is not None:
-        query = query.filter(Product.price >= min_price)
-    if max_price is not None:
-        query = query.filter(Product.price <= max_price)
+    if ctx['category_id']:
+        q = q.filter_by(category_id=ctx['category_id'])
+    if ctx['search']:
+        q = q.filter(Product.name.ilike(f'%{ctx["search"]}%'))
+    if ctx['min_price'] is not None:
+        q = q.filter(Product.price >= ctx['min_price'])
+    if ctx['max_price'] is not None:
+        q = q.filter(Product.price <= ctx['max_price'])
 
-    products = query.order_by(Product.sort_order.asc(), Product.created_at.desc()).all()
-    categories = Category.query.filter_by(is_active=True).order_by(Category.order.asc()).all()
-    selected_category = category_id
-    return render_template('public/catalog.html', **locals())
+    ctx['products'] = q.order_by(Product.sort_order.asc(), Product.created_at.desc()).all()
+    ctx['categories'] = Category.query.filter_by(is_active=True).order_by(Category.order.asc()).all()
+    ctx['selected_category'] = ctx['category_id']
+    
+    if request.headers.get('HX-Request'):
+        return render_template('public/_products_grid_partial.html', **ctx)
+    return render_template('public/catalog.html', **ctx)
 
 
 @catalog_bp.route('/producto/<slug>')
 def product_detail(slug):
-    settings = get_settings()
-    product = Product.query.filter_by(slug=slug, is_active=True).first_or_404()
-    related = Product.query.filter(
-        Product.category_id == product.category_id,
-        Product.id != product.id,
+    ctx = {'settings': get_settings(), 'slug': slug}
+    ctx['product'] = Product.query.filter_by(slug=slug, is_active=True).first_or_404()
+    ctx['related'] = Product.query.filter(
+        Product.category_id == ctx['product'].category_id,
+        Product.id != ctx['product'].id,
         Product.is_active == True
     ).limit(4).all()
-    return render_template('public/product_detail.html', **locals())
+    
+    if request.headers.get('HX-Request'):
+        return render_template('public/_product_detail_modal.html', **ctx)
+    return render_template('public/product_detail.html', **ctx)
 
 
 @catalog_bp.route('/producto/<slug>/galeria')

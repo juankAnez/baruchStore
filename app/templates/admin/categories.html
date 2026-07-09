@@ -3,46 +3,73 @@
 {% block page_title %}Categorías{% endblock %}
 
 {% block content %}
-<div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-    <div class="flex justify-between items-center mb-6">
-        <h3 class="text-lg font-semibold text-gray-800">Todas las categorías</h3>
-        <a href="{{ url_for('admin.category_create') }}" class="btn-primary text-sm"><i class="fas fa-plus mr-2"></i>Nueva Categoría</a>
+<div class="card">
+    <div class="px-6 py-5 border-b border-surface-100 flex items-center justify-between">
+        <h3 class="text-lg font-display font-bold text-surface-900">Todas las categorías</h3>
+        <a href="{{ url_for('admin.category_create') }}" class="btn btn-primary btn-sm">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+            Nueva Categoría
+        </a>
     </div>
     <div class="overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
-                <tr class="border-b border-gray-200">
-                    <th class="text-left py-3 px-3 font-medium text-gray-500">Nombre</th>
-                    <th class="text-left py-3 px-3 font-medium text-gray-500">Slug</th>
-                    <th class="text-center py-3 px-3 font-medium text-gray-500">Orden</th>
-                    <th class="text-center py-3 px-3 font-medium text-gray-500">Estado</th>
-                    <th class="text-right py-3 px-3 font-medium text-gray-500">Acciones</th>
+                <tr class="border-b border-surface-100 bg-surface-50">
+                    <th class="text-left py-3 px-6 font-semibold text-surface-500 text-xs uppercase tracking-wider">Nombre</th>
+                    <th class="text-left py-3 px-6 font-semibold text-surface-500 text-xs uppercase tracking-wider">Slug</th>
+                    <th class="text-center py-3 px-6 font-semibold text-surface-500 text-xs uppercase tracking-wider">Orden</th>
+                    <th class="text-center py-3 px-6 font-semibold text-surface-500 text-xs uppercase tracking-wider">Estado</th>
+                    <th class="text-right py-3 px-6 font-semibold text-surface-500 text-xs uppercase tracking-wider">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 {% for cat in categories %}
-                <tr class="border-b border-gray-100 hover:bg-gray-50">
-                    <td class="py-3 px-3 font-medium">{{ cat.name }}</td>
-                    <td class="py-3 px-3 text-gray-500">{{ cat.slug }}</td>
-                    <td class="py-3 px-3 text-center text-gray-500">{{ cat.order }}</td>
-                    <td class="py-3 px-3 text-center">
+                <tr class="border-b border-surface-50 hover:bg-surface-50 transition-colors">
+                    <td class="py-4 px-6">
+                        <div class="flex items-center gap-3">
+                            {% if cat.image %}
+                            <img src="{{ url_for('static', filename='images/categories/' + cat.image) }}" class="w-10 h-10 rounded-xl object-cover">
+                            {% elif cat.icon %}
+                            <div class="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center text-lg">{{ cat.icon }}</div>
+                            {% else %}
+                            <div class="w-10 h-10 rounded-xl bg-surface-100 flex items-center justify-center"><i class="fas fa-tag text-surface-400"></i></div>
+                            {% endif %}
+                            <span class="font-semibold text-surface-900">{{ cat.name }}</span>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 text-surface-500 font-mono text-xs">{{ cat.slug }}</td>
+                    <td class="py-4 px-6 text-center text-surface-600">{{ cat.order }}</td>
+                    <td class="py-4 px-6 text-center">
                         {% if cat.is_active %}
-                            <span class="badge-success">Activo</span>
+                        <span class="badge-success">Activo</span>
                         {% else %}
-                            <span class="badge-danger">Inactivo</span>
+                        <span class="badge-danger">Inactivo</span>
                         {% endif %}
                     </td>
-                    <td class="py-3 px-3 text-right">
-                        <a href="{{ url_for('admin.category_edit', category_id=cat.id) }}" class="p-2 text-gray-400 hover:text-primary-600"><i class="fas fa-edit"></i></a>
-                        <form method="POST" action="{{ url_for('admin.category_delete', category_id=cat.id) }}" onsubmit="return confirm('¿Eliminar esta categoría?')" class="inline">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <button type="submit" class="p-2 text-gray-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
-                        </form>
+                    <td class="py-4 px-6">
+                        <div class="flex justify-end gap-1">
+                            <a href="{{ url_for('admin.category_edit', category_id=cat.id) }}" class="btn-icon text-surface-400 hover:text-brand-600" title="Editar">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            </a>
+                            <form method="POST" action="{{ url_for('admin.category_delete', category_id=cat.id) }}" onsubmit="return confirm('¿Eliminar esta categoría?')" class="inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn-icon text-surface-400 hover:text-rose-600" title="Eliminar">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="5" class="py-8 text-center text-gray-400">No hay categorías registradas</td>
+                    <td colspan="5" class="py-16 text-center">
+                        <div class="empty-state">
+                            <div class="w-16 h-16 bg-surface-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-surface-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                            </div>
+                            <p class="text-surface-500 font-medium">No hay categorías registradas</p>
+                        </div>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
