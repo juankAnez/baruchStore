@@ -95,8 +95,12 @@
                 </ul>
             </div>
         </div>
-        <div class="py-6 border-t border-gray-800 text-center text-xs text-gray-500">
-            {{ settings.get('footer_text', '© 2026 Baruch Store. Todos los derechos reservados.') }}
+        <div class="py-6 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-500">
+            <span>{{ settings.get('footer_text', '© 2026 Baruch Store. Todos los derechos reservados.') }}</span>
+            <a href="{{ url_for('auth.login') }}" class="hover:text-gray-300 transition-colors inline-flex items-center gap-1">
+                <i data-lucide="shield" class="w-3 h-3"></i>
+                Admin
+            </a>
         </div>
     </div>
 </footer>
