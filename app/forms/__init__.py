@@ -46,6 +46,6 @@ class BannerForm(FlaskForm):
     sort_order = IntegerField('Orden', validators=[Optional()], default=0)
     is_active = BooleanField('Activo')
     image = FileField('Imagen', validators=[
-        DataRequired(),
+        Optional(),
         FileAllowed(['jpg', 'jpeg', 'png', 'gif', 'webp'], 'Solo imágenes')
     ])

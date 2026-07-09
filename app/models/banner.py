@@ -5,7 +5,7 @@ class Banner(db.Model):
     __tablename__ = 'banners'
 
     id = db.Column(db.Integer, primary_key=True)
-    image = db.Column(db.String(255), nullable=False)
+    image = db.Column(db.String(255), nullable=True)
     title = db.Column(db.String(200))
     subtitle = db.Column(db.String(300))
     button_text = db.Column(db.String(100))

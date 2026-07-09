@@ -39,6 +39,7 @@
                 </div>
                 {% endif %}
                 <input type="file" name="image" accept="image/*" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none">
+                {% for error in form.image.errors %}<p class="text-red-500 text-xs mt-1">{{ error }}</p>{% endfor %}
             </div>
             <div class="flex items-center gap-2">
                 {{ form.is_active(class="w-4 h-4 text-primary-600 rounded focus:ring-primary-500") }}

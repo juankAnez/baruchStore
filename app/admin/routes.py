@@ -327,18 +327,17 @@ def banner_create():
             sort_order=form.sort_order.data or 0,
             is_active=form.is_active.data,
         )
-        db.session.add(banner)
-        db.session.commit()
 
         file = request.files.get('image')
         if file and file.filename:
             try:
                 filename = save_image(file, 'banners', convert_webp=True)
                 banner.image = filename
-                db.session.commit()
             except ValueError as e:
                 flash(str(e), 'warning')
 
+        db.session.add(banner)
+        db.session.commit()
         flash('Banner creado correctamente', 'success')
         return redirect(url_for('admin.banners'))
 
