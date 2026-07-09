@@ -1,7 +1,7 @@
 import logging
 from flask import Flask, render_template
 from app.config import config
-from app.extensions import db, migrate, login_manager
+from app.extensions import db, migrate, login_manager, csrf
 from app.models.admin_user import AdminUser
 
 
@@ -19,6 +19,7 @@ def create_app(config_name='default'):
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
+    csrf.init_app(app)
 
     from app.auth import auth_bp
     from app.admin import admin_bp
