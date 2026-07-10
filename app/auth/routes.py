@@ -22,9 +22,11 @@ def register():
         if existing:
             flash('Ese usuario ya existe', 'danger')
         else:
+            from app.extensions import db
             user = AdminUser(username=form.username.data)
             user.set_password(form.password.data)
-            user.save()
+            db.session.add(user)
+            db.session.commit()
             flash('Admin creado correctamente. Inicia sesión.', 'success')
             return redirect(url_for('auth.login'))
     return render_template('admin/login.html', form=form, register_mode=True)
