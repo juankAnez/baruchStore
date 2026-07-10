@@ -5,6 +5,30 @@ from app.auth.forms import LoginForm
 from app.models.admin_user import AdminUser
 
 
+@auth_bp.route('/register', methods=['GET', 'POST'])
+def register():
+    from flask_wtf import FlaskForm
+    from wtforms import StringField, PasswordField, SubmitField
+    from wtforms.validators import DataRequired, Length
+
+    class RegisterForm(FlaskForm):
+        username = StringField('Usuario', validators=[DataRequired(), Length(min=3)])
+        password = PasswordField('Contraseña', validators=[DataRequired(), Length(min=6)])
+        submit = SubmitField('Crear Admin')
+
+    form = RegisterForm()
+    if form.validate_on_submit():
+        existing = AdminUser.query.filter_by(username=form.username.data).first()
+        if existing:
+            flash('Ese usuario ya existe', 'danger')
+        else:
+            user = AdminUser(username=form.username.data)
+            user.set_password(form.password.data)
+            user.save()
+            flash('Admin creado correctamente. Inicia sesión.', 'success')
+            return redirect(url_for('auth.login'))
+    return render_template('admin/login.html', form=form, register_mode=True)
+
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()

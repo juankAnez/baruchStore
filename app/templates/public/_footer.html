@@ -16,23 +16,17 @@
                 <p class="text-sm text-gray-400 leading-relaxed max-w-xs">Tu catálogo digital de confianza. Productos seleccionados con los más altos estándares de calidad y diseño para tu estilo.</p>
                 <div class="flex gap-3 mt-6">
                     {% set phone = settings.get('whatsapp', '') %}
-                    {% if phone %}
-                    <a href="https://wa.me/{{ phone|replace('+', '')|replace(' ', '') }}" target="_blank" class="w-10 h-10 bg-emerald-600/10 text-emerald-400 rounded-xl flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all duration-300 border border-emerald-600/20 hover:border-emerald-600" title="WhatsApp">
+                    <a href="{% if phone %}https://wa.me/{{ phone|replace('+', '')|replace(' ', '') }}{% else %}{{ url_for('admin.settings') }}{% endif %}" target="{% if phone %}_blank{% endif %}" class="w-10 h-10 bg-emerald-600/10 text-emerald-400 rounded-xl flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all duration-300 border border-emerald-600/20 hover:border-emerald-600" title="WhatsApp">
                         <i data-lucide="message-circle" class="w-5 h-5"></i>
                     </a>
-                    {% endif %}
                     {% set instagram = settings.get('instagram', '') %}
-                    {% if instagram %}
-                    <a href="{{ 'https://instagram.com/' + instagram|replace('@', '') }}" target="_blank" class="w-10 h-10 bg-pink-600/10 text-pink-400 rounded-xl flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all duration-300 border border-pink-600/20 hover:border-pink-600" title="Instagram">
+                    <a href="{% if instagram %}https://instagram.com/{{ instagram|replace('@', '') }}{% else %}{{ url_for('admin.settings') }}{% endif %}" target="{% if instagram %}_blank{% endif %}" class="w-10 h-10 bg-pink-600/10 text-pink-400 rounded-xl flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all duration-300 border border-pink-600/20 hover:border-pink-600" title="Instagram">
                         <i data-lucide="instagram" class="w-5 h-5"></i>
                     </a>
-                    {% endif %}
                     {% set facebook = settings.get('facebook', '') %}
-                    {% if facebook %}
-                    <a href="{{ facebook }}" target="_blank" class="w-10 h-10 bg-blue-600/10 text-blue-400 rounded-xl flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300 border border-blue-600/20 hover:border-blue-600" title="Facebook">
+                    <a href="{% if facebook %}{{ facebook }}{% else %}{{ url_for('admin.settings') }}{% endif %}" target="{% if facebook %}_blank{% endif %}" class="w-10 h-10 bg-blue-600/10 text-blue-400 rounded-xl flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300 border border-blue-600/20 hover:border-blue-600" title="Facebook">
                         <i data-lucide="facebook" class="w-5 h-5"></i>
                     </a>
-                    {% endif %}
                 </div>
             </div>
             <div>
@@ -48,27 +42,23 @@
             <div>
                 <h4 class="text-xs font-bold text-gray-300 uppercase tracking-widest mb-5">Contacto</h4>
                 <ul class="space-y-3">
-                    {% if phone %}
                     <li>
-                        <a href="https://wa.me/{{ phone|replace('+', '')|replace(' ', '') }}" target="_blank" class="text-sm hover:text-white flex items-center gap-2.5 transition-colors group">
+                        <a href="{% if phone %}https://wa.me/{{ phone|replace('+', '')|replace(' ', '') }}{% else %}{{ url_for('admin.settings') }}{% endif %}" target="{% if phone %}_blank{% endif %}" class="text-sm hover:text-white flex items-center gap-2.5 transition-colors group">
                             <span class="w-8 h-8 rounded-lg bg-emerald-600/10 text-emerald-400 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shrink-0">
                                 <i data-lucide="message-circle" class="w-4 h-4"></i>
                             </span>
-                            <span>WhatsApp Directo</span>
+                            <span>{{ 'WhatsApp Directo' if phone else 'Configurar WhatsApp' }}</span>
                         </a>
                     </li>
-                    {% endif %}
                     {% set email = settings.get('email', '') %}
-                    {% if email %}
                     <li>
-                        <a href="mailto:{{ email }}" class="text-sm hover:text-white flex items-center gap-2.5 transition-colors group">
+                        <a href="{% if email %}mailto:{{ email }}{% else %}{{ url_for('admin.settings') }}{% endif %}" class="text-sm hover:text-white flex items-center gap-2.5 transition-colors group">
                             <span class="w-8 h-8 rounded-lg bg-blue-600/10 text-blue-400 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shrink-0">
                                 <i data-lucide="mail" class="w-4 h-4"></i>
                             </span>
-                            <span>{{ email }}</span>
+                            <span>{{ email if email else 'Sin correo configurado' }}</span>
                         </a>
                     </li>
-                    {% endif %}
                 </ul>
             </div>
             <div>
