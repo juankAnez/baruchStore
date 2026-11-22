@@ -1,133 +1,82 @@
-<!-- Desktop Sidebar -->
-<aside class="hidden lg:flex w-64 bg-surface-0 border-r border-surface-100 flex-col shrink-0 transition-all duration-300"
-       :class="sidebarOpen ? 'w-64' : 'w-20'">
-    <!-- Logo -->
-    <div class="h-16 flex items-center border-b border-surface-100 px-5 shrink-0">
-        <a href="{{ url_for('catalog.home') }}" target="_blank" class="flex items-center gap-2.5 group">
-            <div class="w-9 h-9 bg-brand-600 rounded-xl flex items-center justify-center shadow-lg shadow-brand-600/25 shrink-0 group-hover:shadow-brand-600/40 transition-all">
-                <span class="text-white font-extrabold text-sm">B</span>
-            </div>
-            <span class="text-base font-display font-extrabold text-surface-900 tracking-tight whitespace-nowrap overflow-hidden transition-all duration-300"
-                  :class="sidebarOpen ? 'w-auto opacity-100' : 'w-0 opacity-0'">
-                Baruch Store
-            </span>
-        </a>
+{% set logo = settings.get('logo', '') %}
+{% set nav = [
+    ('admin.dashboard', 'Resumen', 'layout-grid', request.endpoint == 'admin.dashboard'),
+    ('admin.products', 'Productos', 'package', 'product' in request.endpoint),
+    ('admin.categories', 'Categorías', 'tags', 'categor' in request.endpoint),
+    ('admin.banners', 'Banners', 'image', 'banner' in request.endpoint),
+    ('admin.settings', 'Configuración', 'settings-2', request.endpoint == 'admin.settings'),
+] %}
+
+{% macro nav_links(show_labels_expr) %}
+<nav class="flex-1 overflow-y-auto no-scrollbar px-3 py-4 space-y-1" aria-label="Menú del panel">
+    {% for endpoint, label, icon, active in nav %}
+    <a href="{{ url_for(endpoint) }}"
+       {% if active %}aria-current="page"{% endif %}
+       :title="{{ show_labels_expr }} ? '' : '{{ label }}'"
+       class="group relative flex items-center gap-3 h-11 px-3 rounded-2xl text-[15px] font-medium transition-all duration-300 ease-silk
+       {% if active %}bg-brand-600 text-white shadow-gloss{% else %}text-ink-200 hover:bg-white/5 hover:text-white{% endif %}">
+        <i data-lucide="{{ icon }}" class="w-5 h-5 shrink-0 {% if not active %}text-ink-300 group-hover:text-bubble{% endif %} transition-colors"></i>
+        <span class="whitespace-nowrap transition-opacity duration-200" x-show="{{ show_labels_expr }}">{{ label }}</span>
+    </a>
+    {% endfor %}
+</nav>
+<div class="px-3 py-4 border-t border-white/10 space-y-1">
+    <a href="{{ url_for('catalog.home') }}" target="_blank" rel="noopener"
+       class="group flex items-center gap-3 h-11 px-3 rounded-2xl text-[15px] font-medium text-ink-200 hover:bg-white/5 hover:text-white transition-all">
+        <i data-lucide="external-link" class="w-5 h-5 shrink-0 text-ink-300 group-hover:text-bubble"></i>
+        <span class="whitespace-nowrap" x-show="{{ show_labels_expr }}">Ver la tienda</span>
+    </a>
+    <a href="{{ url_for('auth.logout') }}"
+       class="group flex items-center gap-3 h-11 px-3 rounded-2xl text-[15px] font-medium text-ink-200 hover:bg-white/5 hover:text-white transition-all">
+        <i data-lucide="log-out" class="w-5 h-5 shrink-0 text-ink-300 group-hover:text-bubble"></i>
+        <span class="whitespace-nowrap" x-show="{{ show_labels_expr }}">Cerrar sesión</span>
+    </a>
+</div>
+{% endmacro %}
+
+{% macro brand(show_labels_expr) %}
+<a href="{{ url_for('admin.dashboard') }}" class="flex items-center gap-3 min-w-0">
+    <span class="w-10 h-10 rounded-full overflow-hidden bg-white flex items-center justify-center shrink-0 ring-2 ring-brand-500/40">
+        {% if logo %}
+        <img src="{{ url_for('static', filename='images/logo/' + logo) }}" alt="" class="w-full h-full object-cover">
+        {% else %}
+        <img src="{{ url_for('static', filename='favicon.png') }}" alt="" class="w-7 h-7 object-contain">
+        {% endif %}
+    </span>
+    <span class="min-w-0" x-show="{{ show_labels_expr }}">
+        <span class="block font-display text-lg font-medium text-white truncate leading-tight">{{ store_name }}</span>
+        <span class="block text-xs text-ink-300">Panel de la tienda</span>
+    </span>
+</a>
+{% endmacro %}
+
+<!-- Menú lateral de escritorio -->
+<aside class="hidden lg:flex relative flex-col shrink-0 bg-ink-950 transition-[width] duration-500 ease-silk overflow-hidden"
+       :class="collapsed ? 'w-[76px]' : 'w-64'">
+    <div aria-hidden="true" class="pointer-events-none absolute -top-24 -left-24 w-72 h-72 rounded-full bg-[radial-gradient(closest-side,rgba(224,0,106,0.35),transparent)]"></div>
+    <div class="relative h-20 flex items-center px-4">
+        {{ brand('!collapsed') }}
     </div>
-
-    <!-- Navigation -->
-    <nav class="flex-1 overflow-y-auto p-3 space-y-1">
-        <a href="{{ url_for('admin.dashboard') }}"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-           {% if request.endpoint == 'admin.dashboard' %}bg-brand-50 text-brand-700{% else %}text-surface-600 hover:bg-surface-50 hover:text-surface-900{% endif %}">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
-            </svg>
-            <span class="whitespace-nowrap" :class="sidebarOpen ? '' : 'lg:hidden'">Dashboard</span>
-        </a>
-
-        <a href="{{ url_for('admin.products') }}"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-           {% if 'admin.products' in request.endpoint %}bg-brand-50 text-brand-700{% else %}text-surface-600 hover:bg-surface-50 hover:text-surface-900{% endif %}">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-            </svg>
-            <span class="whitespace-nowrap" :class="sidebarOpen ? '' : 'lg:hidden'">Productos</span>
-        </a>
-
-        <a href="{{ url_for('admin.categories') }}"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-           {% if 'admin.categories' in request.endpoint %}bg-brand-50 text-brand-700{% else %}text-surface-600 hover:bg-surface-50 hover:text-surface-900{% endif %}">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-            </svg>
-            <span class="whitespace-nowrap" :class="sidebarOpen ? '' : 'lg:hidden'">Categorías</span>
-        </a>
-
-        <a href="{{ url_for('admin.banners') }}"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-           {% if 'admin.banners' in request.endpoint %}bg-brand-50 text-brand-700{% else %}text-surface-600 hover:bg-surface-50 hover:text-surface-900{% endif %}">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-            <span class="whitespace-nowrap" :class="sidebarOpen ? '' : 'lg:hidden'">Banners</span>
-        </a>
-
-        <a href="{{ url_for('admin.settings') }}"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-           {% if 'admin.settings' in request.endpoint %}bg-brand-50 text-brand-700{% else %}text-surface-600 hover:bg-surface-50 hover:text-surface-900{% endif %}">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-            <span class="whitespace-nowrap" :class="sidebarOpen ? '' : 'lg:hidden'">Configuración</span>
-        </a>
-    </nav>
-
-    <!-- Bottom Actions -->
-    <div class="p-3 border-t border-surface-100 space-y-1">
-        <a href="{{ url_for('catalog.home') }}" target="_blank"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-surface-600 hover:bg-surface-50 hover:text-surface-900 transition-all">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-            </svg>
-            <span class="whitespace-nowrap" :class="sidebarOpen ? '' : 'lg:hidden'">Ver Tienda</span>
-        </a>
-        <a href="{{ url_for('auth.logout') }}"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-rose-600 hover:bg-rose-50 transition-all">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-            </svg>
-            <span class="whitespace-nowrap" :class="sidebarOpen ? '' : 'lg:hidden'">Cerrar Sesión</span>
-        </a>
+    <div class="relative flex-1 flex flex-col min-h-0">
+        {{ nav_links('!collapsed') }}
     </div>
 </aside>
 
-<!-- Mobile Sidebar -->
-<div x-show="mobileSidebar" x-cloak class="lg:hidden fixed inset-0 z-50">
-    <div class="absolute inset-0 bg-surface-950/40 backdrop-blur-sm" @click="mobileSidebar = false" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"></div>
-    <aside class="absolute left-0 top-0 h-full w-72 bg-surface-0 shadow-float flex flex-col" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full">
-        <div class="h-16 flex items-center justify-between border-b border-surface-100 px-5">
-            <div class="flex items-center gap-2.5">
-                <div class="w-9 h-9 bg-brand-600 rounded-xl flex items-center justify-center shadow-lg shadow-brand-600/25">
-                    <span class="text-white font-extrabold text-sm">B</span>
-                </div>
-                <span class="text-base font-display font-extrabold text-surface-900 tracking-tight">Baruch Store</span>
-            </div>
-            <button @click="mobileSidebar = false" class="btn-icon text-surface-400">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+<!-- Menú móvil -->
+<div x-show="mobileNav" x-cloak class="lg:hidden fixed inset-0 z-50" @keydown.escape.window="mobileNav = false">
+    <div class="absolute inset-0 bg-ink-950/50 backdrop-blur-sm" @click="mobileNav = false"
+         x-show="mobileNav" x-transition:enter="transition ease-silk duration-400" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
+    <aside class="absolute left-0 top-0 h-full w-72 bg-ink-950 flex flex-col rounded-r-4xl overflow-hidden shadow-float"
+           x-show="mobileNav"
+           x-transition:enter="transition ease-silk duration-500 transform" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
+           x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full">
+        <div class="h-20 flex items-center justify-between px-4">
+            {{ brand('true') }}
+            <button @click="mobileNav = false" class="w-10 h-10 rounded-full text-ink-200 hover:bg-white/10 flex items-center justify-center" aria-label="Cerrar menú">
+                <i data-lucide="x" class="w-5 h-5"></i>
             </button>
         </div>
-        <nav class="flex-1 overflow-y-auto p-3 space-y-1">
-            <a href="{{ url_for('admin.dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium {% if request.endpoint == 'admin.dashboard' %}bg-brand-50 text-brand-700{% else %}text-surface-600 hover:bg-surface-50{% endif %}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-                Dashboard
-            </a>
-            <a href="{{ url_for('admin.products') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium {% if 'admin.products' in request.endpoint %}bg-brand-50 text-brand-700{% else %}text-surface-600 hover:bg-surface-50{% endif %}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                Productos
-            </a>
-            <a href="{{ url_for('admin.categories') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium {% if 'admin.categories' in request.endpoint %}bg-brand-50 text-brand-700{% else %}text-surface-600 hover:bg-surface-50{% endif %}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
-                Categorías
-            </a>
-            <a href="{{ url_for('admin.banners') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium {% if 'admin.banners' in request.endpoint %}bg-brand-50 text-brand-700{% else %}text-surface-600 hover:bg-surface-50{% endif %}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                Banners
-            </a>
-            <a href="{{ url_for('admin.settings') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium {% if 'admin.settings' in request.endpoint %}bg-brand-50 text-brand-700{% else %}text-surface-600 hover:bg-surface-50{% endif %}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                Configuración
-            </a>
-        </nav>
-        <div class="p-3 border-t border-surface-100 space-y-1">
-            <a href="{{ url_for('catalog.home') }}" target="_blank" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-surface-600 hover:bg-surface-50">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                Ver Tienda
-            </a>
-            <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-rose-600 hover:bg-rose-50">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                Cerrar Sesión
-            </a>
-        </div>
+        {{ nav_links('true') }}
     </aside>
 </div>

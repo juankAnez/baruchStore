@@ -8,7 +8,7 @@ def get_setting(key, default=''):
 
 
 def build_whatsapp_message(cart_items, total):
-    business_name = get_setting('business_name', 'Baruch Store')
+    business_name = get_setting('business_name', '') or 'Brillo Rosa'
     lines = [f'🛒 *Pedido {business_name}*', '']
     for item in cart_items:
         subtotal = item['price'] * item['quantity']

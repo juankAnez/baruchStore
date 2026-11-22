@@ -4,6 +4,8 @@ from app.config import config
 from app.extensions import db, migrate, login_manager, csrf
 from app.models.admin_user import AdminUser
 
+DEFAULT_STORE_NAME = 'Brillo Rosa'
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -30,6 +32,31 @@ def create_app(config_name='default'):
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(catalog_bp)
     app.register_blueprint(api_bp, url_prefix='/api')
+
+    @app.template_filter('money')
+    def money(value):
+        """$45.900 — miles con punto; decimales solo si los hay (con coma)."""
+        try:
+            v = float(value or 0)
+        except (TypeError, ValueError):
+            return value
+        if v.is_integer():
+            return '$' + f'{v:,.0f}'.replace(',', '.')
+        return '$' + f'{v:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
+
+    @app.context_processor
+    def inject_public_context():
+        # Valores comunes para navbar/footer/base; las vistas pueden sobrescribirlos.
+        from app.models.setting import BusinessSetting
+        from app.models.category import Category
+        try:
+            settings = {s.key: s.value for s in BusinessSetting.query.all()}
+            categories = Category.query.filter_by(is_active=True).order_by(Category.order.asc()).all()
+        except Exception:
+            db.session.rollback()
+            settings, categories = {}, []
+        store_name = (settings.get('business_name') or '').strip() or DEFAULT_STORE_NAME
+        return {'settings': settings, 'categories': categories, 'store_name': store_name}
 
     @app.errorhandler(404)
     def not_found(e):

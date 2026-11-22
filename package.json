@@ -1,7 +1,7 @@
 {
   "name": "baruch-store",
   "version": "1.0.0",
-  "description": "Catálogo Digital Inteligente Baruch Store",
+  "description": "Catálogo digital Brillo Rosa",
   "private": true,
   "scripts": {
     "build:css": "npx tailwindcss -i ./app/static/css/input.css -o ./app/static/css/output.css --minify",

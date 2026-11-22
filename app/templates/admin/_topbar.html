@@ -1,30 +1,18 @@
-<header class="h-16 bg-surface-0/80 backdrop-blur-xl border-b border-surface-100 flex items-center justify-between px-4 sm:px-6 shrink-0">
-    <div class="flex items-center gap-3">
-        <!-- Mobile menu toggle -->
-        <button @click="mobileSidebar = !mobileSidebar" class="lg:hidden btn-icon text-surface-500">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-            </svg>
+<header class="h-20 shrink-0 flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-10 bg-milk/80 backdrop-blur-xl border-b border-ink-100/70">
+    <div class="flex items-center gap-3 min-w-0">
+        <button @click="mobileNav = true" class="lg:hidden btn-icon" aria-label="Abrir menú">
+            <i data-lucide="menu" class="w-5 h-5"></i>
         </button>
-        <!-- Desktop sidebar toggle -->
-        <button @click="sidebarOpen = !sidebarOpen" class="hidden lg:flex btn-icon text-surface-500">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-            </svg>
+        <button @click="collapsed = !collapsed" class="hidden lg:flex btn-icon" :aria-label="collapsed ? 'Expandir menú' : 'Contraer menú'">
+            <i data-lucide="panel-left" class="w-5 h-5"></i>
         </button>
-        <h2 class="text-lg font-display font-bold text-surface-900">{% block page_title %}Dashboard{% endblock %}</h2>
+        <h1 class="font-display text-2xl sm:text-3xl font-medium tracking-tight truncate">{% block page_title %}Resumen{% endblock %}</h1>
     </div>
-    <div class="flex items-center gap-3">
-        <a href="{{ url_for('catalog.home') }}" target="_blank" class="hidden sm:flex btn-icon text-surface-500" title="Ver tienda">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-            </svg>
-        </a>
-        <div class="flex items-center gap-2.5 pl-3 border-l border-surface-200">
-            <div class="w-8 h-8 bg-brand-100 rounded-xl flex items-center justify-center">
-                <span class="text-brand-700 font-bold text-sm">{{ current_user.username[0]|upper }}</span>
-            </div>
-            <span class="text-sm font-medium text-surface-700 hidden sm:block">{{ current_user.username }}</span>
-        </div>
+    <div class="flex items-center gap-2 shrink-0">
+        {% block page_actions %}{% endblock %}
+        <span class="hidden sm:flex items-center gap-2.5 pl-3 ml-1 border-l border-ink-100">
+            <span class="w-9 h-9 rounded-full bg-gradient-to-br from-brand-400 to-brand-700 text-white flex items-center justify-center text-sm font-semibold">{{ current_user.username[:1]|upper }}</span>
+            <span class="text-sm font-medium text-ink-700">{{ current_user.username }}</span>
+        </span>
     </div>
 </header>

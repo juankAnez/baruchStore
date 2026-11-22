@@ -11,6 +11,11 @@ def register():
     from wtforms import StringField, PasswordField, SubmitField
     from wtforms.validators import DataRequired, Length
 
+    # Solo se permite crear el primer admin; después el registro queda cerrado.
+    if AdminUser.query.first() is not None:
+        flash('El registro está cerrado: ya existe un administrador.', 'danger')
+        return redirect(url_for('auth.login'))
+
     class RegisterForm(FlaskForm):
         username = StringField('Usuario', validators=[DataRequired(), Length(min=3)])
         password = PasswordField('Contraseña', validators=[DataRequired(), Length(min=6)])
@@ -29,7 +34,7 @@ def register():
             db.session.commit()
             flash('Admin creado correctamente. Inicia sesión.', 'success')
             return redirect(url_for('auth.login'))
-    return render_template('admin/login.html', form=form, register_mode=True)
+    return render_template('admin/login.html', form=form, register_mode=True, can_register=True)
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -39,9 +44,13 @@ def login():
         if user and user.check_password(form.password.data):
             login_user(user)
             next_page = request.args.get('next')
-            return redirect(next_page or url_for('admin.dashboard'))
+            # Evita redirecciones abiertas: solo rutas internas.
+            if not next_page or not next_page.startswith('/') or next_page.startswith('//'):
+                next_page = url_for('admin.dashboard')
+            return redirect(next_page)
         flash('Usuario o contraseña incorrectos', 'danger')
-    return render_template('admin/login.html', form=form)
+    can_register = AdminUser.query.first() is None
+    return render_template('admin/login.html', form=form, can_register=can_register)
 
 
 @auth_bp.route('/logout')

@@ -1,79 +1,47 @@
 {% extends "base/admin_base.html" %}
-{% block title %}Categorías - Baruch Store{% endblock %}
+{% from 'admin/_macros.html' import empty, icon_action %}
+{% block title %}Categorías - {{ store_name }}{% endblock %}
 {% block page_title %}Categorías{% endblock %}
+{% block page_actions %}
+<a href="{{ url_for('admin.category_create') }}" class="btn-primary btn-shine btn-sm"><i data-lucide="plus" class="w-4 h-4"></i><span class="hidden sm:inline">Nueva categoría</span></a>
+{% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="px-6 py-5 border-b border-surface-100 flex items-center justify-between">
-        <h3 class="text-lg font-display font-bold text-surface-900">Todas las categorías</h3>
-        <a href="{{ url_for('admin.category_create') }}" class="btn btn-primary btn-sm">
-            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-            Nueva Categoría
-        </a>
-    </div>
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-            <thead>
-                <tr class="border-b border-surface-100 bg-surface-50">
-                    <th class="text-left py-3 px-6 font-semibold text-surface-500 text-xs uppercase tracking-wider">Nombre</th>
-                    <th class="text-left py-3 px-6 font-semibold text-surface-500 text-xs uppercase tracking-wider">Slug</th>
-                    <th class="text-center py-3 px-6 font-semibold text-surface-500 text-xs uppercase tracking-wider">Orden</th>
-                    <th class="text-center py-3 px-6 font-semibold text-surface-500 text-xs uppercase tracking-wider">Estado</th>
-                    <th class="text-right py-3 px-6 font-semibold text-surface-500 text-xs uppercase tracking-wider">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for cat in categories %}
-                <tr class="border-b border-surface-50 hover:bg-surface-50 transition-colors">
-                    <td class="py-4 px-6">
-                        <div class="flex items-center gap-3">
-                            {% if cat.image %}
-                            <img src="{{ url_for('static', filename='images/categories/' + cat.image) }}" class="w-10 h-10 rounded-xl object-cover">
-                            {% elif cat.icon %}
-                            <div class="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center text-lg">{{ cat.icon }}</div>
-                            {% else %}
-                            <div class="w-10 h-10 rounded-xl bg-surface-100 flex items-center justify-center"><i class="fas fa-tag text-surface-400"></i></div>
-                            {% endif %}
-                            <span class="font-semibold text-surface-900">{{ cat.name }}</span>
-                        </div>
-                    </td>
-                    <td class="py-4 px-6 text-surface-500 font-mono text-xs">{{ cat.slug }}</td>
-                    <td class="py-4 px-6 text-center text-surface-600">{{ cat.order }}</td>
-                    <td class="py-4 px-6 text-center">
-                        {% if cat.is_active %}
-                        <span class="badge-success">Activo</span>
-                        {% else %}
-                        <span class="badge-danger">Inactivo</span>
-                        {% endif %}
-                    </td>
-                    <td class="py-4 px-6">
-                        <div class="flex justify-end gap-1">
-                            <a href="{{ url_for('admin.category_edit', category_id=cat.id) }}" class="btn-icon text-surface-400 hover:text-brand-600" title="Editar">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                            </a>
-                            <form method="POST" action="{{ url_for('admin.category_delete', category_id=cat.id) }}" onsubmit="return confirm('¿Eliminar esta categoría?')" class="inline">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <button type="submit" class="btn-icon text-surface-400 hover:text-rose-600" title="Eliminar">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="5" class="py-16 text-center">
-                        <div class="empty-state">
-                            <div class="w-16 h-16 bg-surface-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                <svg class="w-8 h-8 text-surface-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
-                            </div>
-                            <p class="text-surface-500 font-medium">No hay categorías registradas</p>
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+{% if categories %}
+<p class="mb-5 text-ink-500">Se muestran en la tienda en este orden. Cambia el número de orden para moverlas.</p>
+<div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+    {% for cat in categories %}
+    {% set count = cat.products.count() %}
+    <article class="card p-5 flex items-center gap-4 transition-all duration-300 ease-silk hover:ring-brand-200 {{ 'opacity-60' if not cat.is_active }}">
+        <span class="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-blush to-brand-100 shrink-0 flex items-center justify-center text-2xl">
+            {% if cat.image %}
+            <img src="{{ url_for('static', filename='images/categories/' + cat.image) }}" alt="" class="w-full h-full object-cover">
+            {% elif cat.icon and not cat.icon.isascii() %}{{ cat.icon }}
+            {% else %}<i data-lucide="{{ cat.icon or 'sparkles' }}" class="w-6 h-6 text-brand-600"></i>{% endif %}
+        </span>
+        <div class="flex-1 min-w-0">
+            <a href="{{ url_for('admin.category_edit', category_id=cat.id) }}" class="block font-display text-lg font-medium truncate hover:text-brand-700">{{ cat.name }}</a>
+            <p class="text-sm text-ink-400">
+                {{ count }} {{ 'producto' if count == 1 else 'productos' }}
+                {% if not cat.is_active %}<span class="badge bg-ink-100 text-ink-500 ml-1">Oculta</span>{% endif %}
+            </p>
+            <p class="text-xs text-ink-300 mt-0.5">Orden {{ cat.order }}</p>
+        </div>
+        <div class="flex flex-col">
+            <a href="{{ url_for('admin.category_edit', category_id=cat.id) }}">{{ icon_action('pencil', 'Editar') }}</a>
+            <form method="POST" action="{{ url_for('admin.category_delete', category_id=cat.id) }}"
+                  data-confirm="{% if count %}«{{ cat.name }}» tiene {{ count }} {{ 'producto' if count == 1 else 'productos' }}. Muévelos a otra categoría antes de eliminarla.{% else %}¿Eliminar la categoría «{{ cat.name }}»?{% endif %}"
+                  {% if count %}data-confirm-block{% endif %}>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit">{{ icon_action('trash-2', 'Eliminar', 'danger') }}</button>
+            </form>
+        </div>
+    </article>
+    {% endfor %}
 </div>
+{% else %}
+<section class="card">
+    {{ empty('tags', 'Aún no hay categorías', 'Crea categorías como Labios, Ojos o Skincare. Cada producto necesita una.', url_for('admin.category_create'), 'Crear categoría') }}
+</section>
+{% endif %}
 {% endblock %}

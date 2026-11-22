@@ -1,94 +1,79 @@
 {% extends "base/admin_base.html" %}
-{% block title %}Configuración - Baruch Store{% endblock %}
-{% block page_title %}Configuración del Negocio{% endblock %}
+{% from 'admin/_macros.html' import dropzone %}
+{% block title %}Configuración - {{ store_name }}{% endblock %}
+{% block page_title %}Configuración{% endblock %}
+
 
 {% block content %}
-<div class="card">
-    <div class="px-6 py-5 border-b border-surface-100">
-        <h3 class="text-lg font-display font-bold text-surface-900">Configuración General</h3>
-    </div>
-    <form method="POST" enctype="multipart/form-data" class="p-6">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Business Name -->
-            <div>
-                <label class="label">Nombre del Negocio</label>
-                <input type="text" name="business_name" value="{{ settings.get('business_name', '') }}" class="input" placeholder="Mi tienda">
-            </div>
+{% macro text(name, label, placeholder='', help='', type='text') %}
+<label class="block">
+    <span class="label">{{ label }}</span>
+    <input type="{{ type }}" name="{{ name }}" value="{{ settings.get(name) or '' }}" placeholder="{{ placeholder }}" class="input">
+    {% if help %}<span class="block mt-1.5 text-xs text-ink-400">{{ help }}</span>{% endif %}
+</label>
+{% endmacro %}
+<form method="POST" enctype="multipart/form-data" class="space-y-6 max-w-4xl">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-            <!-- WhatsApp -->
+    <section class="card p-6 grid md:grid-cols-3 gap-6">
+        <div>
+            <h2 class="font-display text-xl font-medium">Tu marca</h2>
+            <p class="mt-1 text-sm text-ink-500">Nombre y logo que se ven en toda la tienda.</p>
+        </div>
+        <div class="md:col-span-2 space-y-5">
+            {{ text('business_name', 'Nombre de la tienda', 'Brillo Rosa') }}
             <div>
-                <label class="label">Número de WhatsApp</label>
-                <input type="text" name="whatsapp" value="{{ settings.get('whatsapp', '') }}" class="input" placeholder="+59170000000">
-            </div>
-
-            <!-- Instagram -->
-            <div>
-                <label class="label">Usuario de Instagram</label>
-                <input type="text" name="instagram" value="{{ settings.get('instagram', '') }}" class="input" placeholder="@mitienda">
-            </div>
-
-            <!-- Facebook -->
-            <div>
-                <label class="label">Facebook</label>
-                <input type="text" name="facebook" value="{{ settings.get('facebook', '') }}" class="input" placeholder="https://facebook.com/...">
-            </div>
-
-            <!-- Email -->
-            <div>
-                <label class="label">Correo Electrónico</label>
-                <input type="email" name="email" value="{{ settings.get('email', '') }}" class="input" placeholder="correo@ejemplo.com">
-            </div>
-
-            <!-- Address -->
-            <div>
-                <label class="label">Dirección</label>
-                <input type="text" name="address" value="{{ settings.get('address', '') }}" class="input" placeholder="Calle Principal #123">
-            </div>
-
-            <!-- Hours -->
-            <div>
-                <label class="label">Horarios</label>
-                <input type="text" name="hours" value="{{ settings.get('hours', '') }}" class="input" placeholder="Lun-Sab: 9:00 - 18:00">
-            </div>
-
-            <!-- Logo / Profile Photo -->
-            <div>
-                <label class="label">Logo / Foto de Perfil</label>
-                <div class="flex items-center gap-4">
-                    {% if settings.get('logo') %}
-                    <div class="w-14 h-14 rounded-xl overflow-hidden border-2 border-gray-200 shrink-0">
-                        <img src="{{ url_for('static', filename='images/logo/' + settings.get('logo', '')) }}" alt="Logo" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=&quot;w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs&quot;>Sin<br>foto</div>'">
-                    </div>
-                    {% else %}
-                    <div class="w-14 h-14 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 text-[10px] font-bold text-center leading-tight border-2 border-dashed border-gray-200 shrink-0">Sin<br>foto</div>
-                    {% endif %}
-                    <div class="flex-1">
-                        <input type="file" name="logo" accept="image/*" class="input text-sm py-2">
-                        <p class="text-[10px] text-gray-400 mt-1">Sube una foto (JPG, PNG, WebP). Se mostrará en el encabezado y pie de página.</p>
-                    </div>
+                <span class="label">Logo</span>
+                <div class="flex items-start gap-4">
+                    <span class="w-20 h-20 rounded-full overflow-hidden bg-white ring-4 ring-brand-100 shrink-0 flex items-center justify-center">
+                        {% if settings.get('logo') %}
+                        <img src="{{ url_for('static', filename='images/logo/' + settings.get('logo')) }}" alt="Logo actual" class="w-full h-full object-cover">
+                        {% else %}
+                        <img src="{{ url_for('static', filename='favicon.png') }}" alt="" class="w-12 h-12 object-contain opacity-40">
+                        {% endif %}
+                    </span>
+                    <div class="flex-1">{{ dropzone('logo', hint='Cuadrado, idealmente de 500 × 500 px o más. Se recorta en círculo.') }}</div>
                 </div>
             </div>
-
-            <!-- Footer Text -->
-            <div>
-                <label class="label">Texto del Pie de Página</label>
-                <input type="text" name="footer_text" value="{{ settings.get('footer_text', '') }}" class="input" placeholder="© 2026 Mi tienda">
-            </div>
-
-            <!-- WhatsApp Message -->
-            <div class="md:col-span-2">
-                <label class="label">Mensaje Automático WhatsApp</label>
-                <textarea name="whatsapp_message" rows="3" class="input" placeholder="¡Hola! Quiero hacer un pedido:">{{ settings.get('whatsapp_message', '¡Hola! Quiero hacer un pedido:') }}</textarea>
-            </div>
+            {{ text('footer_text', 'Texto del pie de página', '© 2026 Brillo Rosa') }}
         </div>
+    </section>
 
-        <div class="mt-8 pt-6 border-t border-surface-100">
-            <button type="submit" class="btn btn-primary">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                Guardar Cambios
-            </button>
+    <section class="card p-6 grid md:grid-cols-3 gap-6">
+        <div>
+            <h2 class="font-display text-xl font-medium">Portada</h2>
+            <p class="mt-1 text-sm text-ink-500">Lo primero que leen tus clientas al entrar.</p>
         </div>
-    </form>
-</div>
+        <div class="md:col-span-2 space-y-5">
+            {{ text('hero_title', 'Título', 'Maquillaje que brilla contigo', 'Corto funciona mejor: entre 3 y 6 palabras.') }}
+            <label class="block">
+                <span class="label">Texto</span>
+                <textarea name="hero_text" rows="3" class="input" placeholder="Labiales, bases, sombras y cuidado de la piel elegidos uno a uno...">{{ settings.get('hero_text') or '' }}</textarea>
+            </label>
+        </div>
+    </section>
+
+    <section class="card p-6 grid md:grid-cols-3 gap-6">
+        <div>
+            <h2 class="font-display text-xl font-medium">Pedidos y contacto</h2>
+            <p class="mt-1 text-sm text-ink-500">Solo se muestran en la tienda los datos que completes.</p>
+        </div>
+        <div class="md:col-span-2 grid sm:grid-cols-2 gap-5">
+            {{ text('whatsapp', 'WhatsApp para pedidos', '+57 300 000 0000', 'Con código de país.', 'tel') }}
+            {{ text('instagram', 'Instagram', '@brillorosa') }}
+            {{ text('facebook', 'Facebook', 'https://facebook.com/...', type='url') }}
+            {{ text('email', 'Correo', 'hola@ejemplo.com', type='email') }}
+            {{ text('address', 'Dirección', 'Barrio, ciudad') }}
+            {{ text('hours', 'Horario de atención', 'Lun a sáb, 9:00 a 7:00 p. m.') }}
+            <label class="block sm:col-span-2">
+                <span class="label">Saludo del pedido por WhatsApp</span>
+                <textarea name="whatsapp_message" rows="2" class="input" placeholder="¡Hola! Quiero hacer un pedido:">{{ settings.get('whatsapp_message') or '' }}</textarea>
+            </label>
+        </div>
+    </section>
+
+    <div class="sticky bottom-0 -mx-4 sm:-mx-6 lg:-mx-10 -mb-6 lg:-mb-10 px-4 sm:px-6 lg:px-10 py-4 bg-milk/85 backdrop-blur-xl border-t border-ink-100 flex justify-end">
+        <button type="submit" class="btn-primary btn-shine"><i data-lucide="check" class="w-4 h-4"></i>Guardar cambios</button>
+    </div>
+</form>
 {% endblock %}

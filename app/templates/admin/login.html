@@ -1,61 +1,72 @@
 {% extends "base/admin_base.html" %}
-{% block title %}{% if register_mode %}Crear Admin{% else %}Iniciar Sesión{% endif %} - Baruch Store{% endblock %}
+{% block title %}{% if register_mode %}Crear administrador{% else %}Iniciar sesión{% endif %} - {{ store_name }}{% endblock %}
 
 {% block login_content %}
-<div class="min-h-screen flex items-center justify-center bg-surface-50 relative overflow-hidden py-12 px-4">
-    <div class="absolute inset-0">
-        <div class="absolute top-1/3 left-1/3 w-96 h-96 bg-brand-500/5 rounded-full blur-[120px]"></div>
-        <div class="absolute bottom-1/3 right-1/3 w-64 h-64 bg-brand-400/5 rounded-full blur-[80px]"></div>
+{% set logo = settings.get('logo', '') %}
+<div class="min-h-screen grid lg:grid-cols-2">
+    <!-- Marca -->
+    <div class="relative hidden lg:flex flex-col justify-between overflow-hidden bg-ink-950 text-white p-12">
+        <div aria-hidden="true" class="pointer-events-none absolute -bottom-40 -left-32 w-[640px] aspect-square rounded-full bg-[radial-gradient(closest-side,rgba(224,0,106,0.5),transparent)]"></div>
+        <svg class="absolute top-24 right-24 w-10 h-10 text-bubble animate-twinkle" aria-hidden="true"><use href="#sparkle"/></svg>
+        <svg class="absolute top-48 right-48 w-5 h-5 text-brand-400 animate-twinkle [animation-delay:1.2s]" aria-hidden="true"><use href="#sparkle"/></svg>
+        <a href="{{ url_for('catalog.home') }}" class="relative inline-flex items-center gap-2 text-sm text-ink-200 hover:text-white"><i data-lucide="arrow-left" class="w-4 h-4"></i>Volver a la tienda</a>
+        <div class="relative">
+            <span class="w-24 h-24 rounded-full overflow-hidden bg-white flex items-center justify-center ring-4 ring-brand-500/40">
+                {% if logo %}<img src="{{ url_for('static', filename='images/logo/' + logo) }}" alt="" class="w-full h-full object-cover">
+                {% else %}<img src="{{ url_for('static', filename='favicon.png') }}" alt="" class="w-16 h-16 object-contain">{% endif %}
+            </span>
+            <p class="mt-8 font-display text-6xl font-medium leading-[0.95] tracking-tight">{{ store_name }}</p>
+            <p class="mt-4 text-lg text-ink-200">Panel para administrar productos, banners y la información de la tienda.</p>
+        </div>
     </div>
 
-    <div class="relative max-w-md w-full">
-        <div class="text-center mb-8" data-aos="fade-up">
-            <a href="{{ url_for('catalog.home') }}" class="inline-flex items-center gap-2.5 mb-6">
-                <div class="w-12 h-12 bg-brand-600 rounded-2xl flex items-center justify-center shadow-lg shadow-brand-600/25">
-                    <span class="text-white font-extrabold text-xl">B</span>
-                </div>
-            </a>
-            <h1 class="text-2xl font-display font-extrabold text-surface-900">Panel de Administración</h1>
-            <p class="mt-2 text-surface-500">{{ 'Crea tu cuenta de administrador' if register_mode else 'Inicia sesión para gestionar tu tienda' }}</p>
-        </div>
+    <!-- Formulario -->
+    <div class="flex items-center justify-center px-4 py-12 bg-milk">
+        <div class="w-full max-w-sm rise">
+            <img src="{{ url_for('static', filename='favicon.png') }}" alt="" class="lg:hidden w-14 h-14 mb-6">
+            <h1 class="font-display text-4xl font-medium tracking-tight">{{ 'Crea tu cuenta' if register_mode else 'Hola de nuevo' }}</h1>
+            <p class="mt-2 text-ink-500">{{ 'Será la cuenta de administración de la tienda.' if register_mode else 'Entra para administrar tu tienda.' }}</p>
 
-        <div class="card p-8" data-aos="fade-up" data-aos-delay="100">
-            <form method="POST" novalidate>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+            <p class="mt-6 flex items-center gap-2 px-4 py-3 rounded-2xl text-sm font-medium {{ 'bg-emerald-50 text-emerald-800' if category == 'success' else 'bg-red-50 text-red-800' }}" role="alert">
+                <i data-lucide="{{ 'check-circle-2' if category == 'success' else 'alert-circle' }}" class="w-4 h-4 shrink-0"></i>{{ message }}
+            </p>
+            {% endfor %}
+            {% endwith %}
+
+            <form method="POST" novalidate class="mt-8 space-y-5" x-data="{ show: false, sending: false }" @submit="sending = true">
                 {{ form.hidden_tag() }}
-                <div class="space-y-5">
-                    <div>
-                        <label class="label">{{ form.username.label }}</label>
-                        {{ form.username(class="input", placeholder="Ingresa tu usuario", autofocus=true) }}
-                        {% if form.username.errors %}
-                        <p class="text-rose-500 text-xs mt-1.5 font-medium">{{ form.username.errors[0] }}</p>
-                        {% endif %}
-                    </div>
-                    <div>
-                        <label class="label">{{ form.password.label }}</label>
-                        {{ form.password(class="input", placeholder="Ingresa tu contraseña") }}
-                        {% if form.password.errors %}
-                        <p class="text-rose-500 text-xs mt-1.5 font-medium">{{ form.password.errors[0] }}</p>
-                        {% endif %}
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary w-full mt-6">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
-                    {{ 'Crear Admin' if register_mode else 'Iniciar Sesión' }}
+                <label class="block">
+                    <span class="label">{{ form.username.label.text }}</span>
+                    {{ form.username(class="input", autocomplete="username", autofocus=true) }}
+                    {% for e in form.username.errors %}<span class="block mt-1.5 text-xs font-medium text-red-600">{{ e }}</span>{% endfor %}
+                </label>
+                <label class="block">
+                    <span class="label">{{ form.password.label.text }}</span>
+                    <span class="relative block">
+                        {{ form.password(class="input pr-12", autocomplete=("new-password" if register_mode else "current-password"), **{':type': "show ? 'text' : 'password'"}) }}
+                        <button type="button" @click="show = !show" class="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center text-ink-400 hover:text-ink-900" :aria-label="show ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                            <i x-show="!show" data-lucide="eye" class="w-4 h-4"></i>
+                            <i x-show="show" x-cloak data-lucide="eye-off" class="w-4 h-4"></i>
+                        </button>
+                    </span>
+                    {% for e in form.password.errors %}<span class="block mt-1.5 text-xs font-medium text-red-600">{{ e }}</span>{% endfor %}
+                </label>
+                <button type="submit" class="btn-primary btn-shine w-full py-3.5" :disabled="sending" :class="sending && 'opacity-70'">
+                    <span x-show="!sending">{{ 'Crear cuenta' if register_mode else 'Entrar' }}</span>
+                    <span x-show="sending" x-cloak class="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
                 </button>
             </form>
-            <div class="mt-4 text-center">
-                {% if register_mode %}
-                <a href="{{ url_for('auth.login') }}" class="text-sm font-medium text-brand-600 hover:text-brand-700 transition-colors">¿Ya tienes cuenta? Inicia sesión</a>
-                {% else %}
-                <a href="{{ url_for('auth.register') }}" class="text-sm font-medium text-brand-600 hover:text-brand-700 transition-colors">¿Primera vez? Crea un admin</a>
-                {% endif %}
-            </div>
-        </div>
 
-        <div class="text-center mt-6" data-aos="fade-up" data-aos-delay="200">
-            <a href="{{ url_for('catalog.home') }}" class="text-sm font-medium text-surface-500 hover:text-brand-600 transition-colors">
-                ← Volver a la tienda
-            </a>
+            <p class="mt-6 text-center text-sm">
+                {% if register_mode %}
+                <a href="{{ url_for('auth.login') }}" class="text-brand-700 link-line">Ya tengo cuenta</a>
+                {% elif can_register %}
+                <a href="{{ url_for('auth.register') }}" class="text-brand-700 link-line">Crear la cuenta de administración</a>
+                {% endif %}
+            </p>
+            <p class="lg:hidden mt-4 text-center text-sm"><a href="{{ url_for('catalog.home') }}" class="text-ink-500 link-line">Volver a la tienda</a></p>
         </div>
     </div>
 </div>

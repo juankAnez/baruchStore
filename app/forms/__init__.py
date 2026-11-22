@@ -29,7 +29,7 @@ class ProductForm(FlaskForm):
 class CategoryForm(FlaskForm):
     name = StringField('Nombre', validators=[DataRequired()])
     description = TextAreaField('Descripción', validators=[Optional()])
-    icon = StringField('Icono (emoji)', validators=[Optional()])
+    icon = StringField('Emoji', validators=[Optional()])
     order = IntegerField('Orden', validators=[Optional()], default=0)
     is_active = BooleanField('Activo')
     image = FileField('Imagen', validators=[

@@ -1,13 +1,14 @@
 {% extends "base/public_base.html" %}
-{% block title %}Página no encontrada{% endblock %}
+{% block title %}Página no encontrada — {{ store_name }}{% endblock %}
 {% block body %}
-<div class="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-    <div class="text-center" data-aos="fade-up">
-        <p class="text-8xl font-display font-black text-gray-200 select-none">404</p>
-        <div class="w-16 h-16 bg-brand-100 rounded-2xl flex items-center justify-center mx-auto -mt-6 mb-5"><svg class="w-8 h-8 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-        <h2 class="text-2xl font-display font-bold text-gray-900 mb-2">Página no encontrada</h2>
-        <p class="text-gray-500 mb-6 max-w-sm mx-auto">La página que buscas no existe o fue movida.</p>
-        <a href="{{ url_for('catalog.home') }}" class="btn-primary btn-sm">Volver al inicio</a>
-    </div>
-</div>
+{% include 'public/_navbar.html' %}
+<main class="min-h-[85vh] flex items-center justify-center px-4 pt-24">
+  <div class="text-center max-w-md">
+    <svg class="w-10 h-10 mx-auto text-brand-400 animate-twinkle" aria-hidden="true"><use href="#sparkle"/></svg>
+    <h1 class="mt-6 font-display text-5xl sm:text-6xl font-medium tracking-tight">Esta página no existe</h1>
+    <p class="mt-4 text-lg text-ink-500">Puede que el enlace esté mal escrito o que el producto ya no esté disponible.</p>
+    <a href="{{ url_for('catalog.catalog') }}" class="btn-primary mt-8">Ir al catálogo</a>
+  </div>
+</main>
+{% include 'public/_cart_sidebar.html' %}
 {% endblock %}

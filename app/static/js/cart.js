@@ -2,12 +2,17 @@ document.addEventListener('alpine:init', () => {
     Alpine.store('cart', {
         items: JSON.parse(localStorage.getItem('baruch-cart') || '[]'),
         open: false,
+        bump: false,
         whatsappNumber: (window.BARUCH_CONFIG?.whatsapp || '').replace(/[^0-9]/g, ''),
         shippingForm: {
             name: localStorage.getItem('baruch-shipping-name') || '',
             address: localStorage.getItem('baruch-shipping-address') || '',
             phone: localStorage.getItem('baruch-shipping-phone') || '',
             payment: localStorage.getItem('baruch-shipping-payment') || 'Efectivo'
+        },
+
+        money(value) {
+            return '$' + new Intl.NumberFormat('es-CO', { maximumFractionDigits: 2 }).format(value || 0);
         },
 
         get count() {
@@ -30,6 +35,10 @@ document.addEventListener('alpine:init', () => {
                 this.items.push({ ...product, quantity: 1 });
             }
             this.persist();
+            // Pequeño salto de la bolsa en la barra para confirmar
+            this.bump = false;
+            requestAnimationFrame(() => { this.bump = true; setTimeout(() => { this.bump = false; }, 650); });
+            if (window.showToast) window.showToast(`${product.name} está en tu bolsa`);
         },
 
         removeItem(index) {
@@ -86,7 +95,7 @@ document.addEventListener('alpine:init', () => {
 
             // Build professional WhatsApp message
             const lines = [];
-            lines.push('🛒 *NUEVO PEDIDO - BARUCH STORE*');
+            lines.push(`🛒 *NUEVO PEDIDO - ${(window.BARUCH_CONFIG?.business_name || 'Brillo Rosa').toUpperCase()}*`);
             lines.push('==================================');
             lines.push('');
             lines.push('*Datos del Cliente:*');
@@ -98,13 +107,12 @@ document.addEventListener('alpine:init', () => {
             lines.push('*Productos:*');
             
             this.items.forEach(item => {
-                const subtotal = (item.price * item.quantity).toFixed(2);
-                lines.push(`• ${item.name} (x${item.quantity}) - $${subtotal}`);
+                lines.push(`• ${item.name} (x${item.quantity}) - ${this.money(item.price * item.quantity)}`);
             });
             
             lines.push('');
             lines.push('==================================');
-            lines.push(`*TOTAL A PAGAR: $${this.total.toFixed(2)}*`);
+            lines.push(`*TOTAL A PAGAR: ${this.money(this.total)}*`);
             lines.push('==================================');
             lines.push('');
             lines.push('_Por favor, confírmame el pedido para coordinar la entrega. ¡Gracias!_');

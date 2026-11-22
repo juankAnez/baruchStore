@@ -1,6 +1,6 @@
 from flask import render_template, request
 from app.catalog import catalog_bp
-from app.models.product import Product, ProductImage
+from app.models.product import Product
 from app.models.category import Category
 from app.models.banner import Banner
 from app.models.setting import BusinessSetting
@@ -18,6 +18,7 @@ def home():
     ctx['featured'] = Product.query.filter_by(is_active=True, is_featured=True).order_by(Product.sort_order.asc()).limit(8).all()
     ctx['new_products'] = Product.query.filter_by(is_active=True, is_new=True).order_by(Product.created_at.desc()).limit(8).all()
     ctx['categories'] = Category.query.filter_by(is_active=True).order_by(Category.order.asc()).all()
+    ctx['total_products'] = Product.query.filter_by(is_active=True).count()
     return render_template('public/home.html', **ctx)
 
 
@@ -62,13 +63,6 @@ def product_detail(slug):
     if request.headers.get('HX-Request'):
         return render_template('public/_product_detail_modal.html', **ctx)
     return render_template('public/product_detail.html', **ctx)
-
-
-@catalog_bp.route('/producto/<slug>/galeria')
-def product_gallery(slug):
-    product = Product.query.filter_by(slug=slug).first_or_404()
-    images = ProductImage.query.filter_by(product_id=product.id).order_by(ProductImage.sort_order.asc()).all()
-    return render_template('public/_product_gallery.html', product=product, images=images)
 
 
 @catalog_bp.route('/search')

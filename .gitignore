@@ -14,12 +14,17 @@ build/
 node_modules/
 .DS_Store
 Thumbs.db
-static/css/output.css
-static/images/productos/*
-static/images/banners/*
-static/images/categories/*
+# Imágenes subidas desde el admin (no van al repo)
+app/static/images/productos/*
+app/static/images/banners/*
+app/static/images/categories/*
+app/static/images/logo/*
+!app/static/images/productos/.gitkeep
+!app/static/images/banners/.gitkeep
+!app/static/images/categories/.gitkeep
+!app/static/images/logo/.gitkeep
+# Archivos locales de diseño
 baruch perfil.jpeg
 bolsa-de-la-compra.png
-!static/images/productos/.gitkeep
-!static/images/banners/.gitkeep
-!static/images/categories/.gitkeep
+favicoKinetik.png
+Logotipo BR Rosa Brillante.png

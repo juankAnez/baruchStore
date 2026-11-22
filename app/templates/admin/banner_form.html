@@ -1,63 +1,49 @@
 {% extends "base/admin_base.html" %}
-{% block title %}{{ title }} - Baruch Store{% endblock %}
+{% from 'admin/_macros.html' import field, switch, dropzone %}
+{% block title %}{{ title }} - {{ store_name }}{% endblock %}
 {% block page_title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="card max-w-2xl">
-    <div class="px-6 py-5 border-b border-surface-100">
-        <h3 class="text-lg font-display font-bold text-surface-900">{{ title }}</h3>
+<a href="{{ url_for('admin.banners') }}" class="inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-brand-700 mb-6"><i data-lucide="arrow-left" class="w-4 h-4"></i>Banners</a>
+
+<form method="POST" enctype="multipart/form-data" novalidate class="grid lg:grid-cols-5 gap-6">
+    {{ form.hidden_tag() }}
+    <div class="lg:col-span-3 space-y-6">
+        <section class="card p-6">
+            <h2 class="font-display text-xl font-medium">Imagen</h2>
+            <p class="mt-1 mb-4 text-sm text-ink-500">Se recorta en forma de arco vertical (4:5). Deja el motivo principal en el centro.</p>
+            {{ dropzone('image', hint='JPG, PNG o WebP.' ~ (' Si subes otra, reemplaza la actual.' if banner and banner.image else ''), errors=form.image.errors) }}
+        </section>
+
+        <section class="card p-6 space-y-5">
+            <h2 class="font-display text-xl font-medium">Texto sobre la imagen</h2>
+            <p class="-mt-3 text-sm text-ink-500">Opcional. Si lo dejas vacío, solo se ve la foto.</p>
+            {{ field(form.title, 'Ej. Nueva colección Glow') }}
+            {{ field(form.subtitle, 'Ej. Brillo jugoso que dura todo el día') }}
+            <div class="grid sm:grid-cols-2 gap-5">
+                {{ field(form.button_text, 'Ej. Ver colección') }}
+                {{ field(form.link, '/catalogo', help='A dónde lleva el botón.') }}
+            </div>
+        </section>
     </div>
-    <form method="POST" enctype="multipart/form-data" novalidate class="p-6">
-        {{ form.hidden_tag() }}
-        <div class="space-y-5">
-            <div>
-                <label class="label">{{ form.title.label }}</label>
-                {{ form.title(class="input", placeholder="Título del banner") }}
-            </div>
-            <div>
-                <label class="label">{{ form.subtitle.label }}</label>
-                {{ form.subtitle(class="input", placeholder="Subtítulo del banner") }}
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="label">{{ form.button_text.label }}</label>
-                    {{ form.button_text(class="input", placeholder="Texto del botón") }}
-                </div>
-                <div>
-                    <label class="label">{{ form.link.label }}</label>
-                    {{ form.link(class="input", placeholder="https://...") }}
-                </div>
-            </div>
-            <div>
-                <label class="label">{{ form.sort_order.label }}</label>
-                {{ form.sort_order(class="input", placeholder="0") }}
-            </div>
-            <div>
-                <label class="label">{{ form.image.label }}</label>
-                {% if banner and banner.image %}
-                <div class="mb-3">
-                    <img src="{{ url_for('static', filename='images/banners/' + banner.image) }}" class="w-full h-40 object-cover rounded-2xl border border-surface-200">
-                </div>
-                {% endif %}
-                <div class="border-2 border-dashed border-surface-200 rounded-2xl p-6 text-center hover:border-brand-400 hover:bg-brand-50/30 transition-all cursor-pointer" onclick="this.querySelector('input').click()">
-                    <input type="file" name="image" accept="image/*" class="hidden">
-                    <svg class="w-8 h-8 text-surface-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    <p class="text-sm text-surface-600">Seleccionar imagen</p>
-                </div>
-                {% for error in form.image.errors %}<p class="text-rose-500 text-xs mt-1.5 font-medium">{{ error }}</p>{% endfor %}
-            </div>
-            <div class="flex items-center gap-2.5">
-                {{ form.is_active(class="w-4 h-4 text-brand-600 rounded-lg border-surface-300 focus:ring-brand-500") }}
-                <label class="text-sm font-medium text-surface-700">{{ form.is_active.label }}</label>
-            </div>
+
+    <div class="lg:col-span-2 space-y-6">
+        {% if banner and banner.image %}
+        <section class="card p-4">
+            <p class="text-sm text-ink-500 mb-3">Imagen actual</p>
+            <span class="arch block aspect-[4/5] overflow-hidden">
+                <img src="{{ url_for('static', filename='images/banners/' + banner.image) }}" alt="" class="w-full h-full object-cover">
+            </span>
+        </section>
+        {% endif %}
+        <section class="card p-6 space-y-4">
+            {{ field(form.sort_order, '0', help='Los números más bajos se muestran primero.') }}
+            {{ switch(form.is_active, 'Se muestra en la portada.') }}
+        </section>
+        <div class="flex justify-end gap-3">
+            <a href="{{ url_for('admin.banners') }}" class="btn-secondary">Cancelar</a>
+            <button type="submit" class="btn-primary btn-shine"><i data-lucide="check" class="w-4 h-4"></i>Guardar banner</button>
         </div>
-        <div class="mt-8 pt-6 border-t border-surface-100 flex gap-3">
-            <button type="submit" class="btn btn-primary">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                Guardar
-            </button>
-            <a href="{{ url_for('admin.banners') }}" class="btn btn-secondary">Cancelar</a>
-        </div>
-    </form>
-</div>
+    </div>
+</form>
 {% endblock %}

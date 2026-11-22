@@ -1,76 +1,66 @@
-document.addEventListener('DOMContentLoaded', function () {
-    // Initialize Lucide Icons
-    if (window.lucide) {
-        lucide.createIcons();
+// ── Iconos Lucide ──
+// Un observador re-dibuja los iconos que aparezcan después (HTMX, Alpine x-for/x-if, avisos).
+(function () {
+    let pending = false;
+    function renderIcons() {
+        pending = false;
+        if (window.lucide) lucide.createIcons();
     }
-
-    // HTMX Settle listener: refresh Lucide icons for any dynamic elements swapped in by HTMX
-    document.body.addEventListener('htmx:afterSettle', () => {
-        if (window.lucide) {
-            lucide.createIcons();
+    function schedule() {
+        if (!pending) {
+            pending = true;
+            requestAnimationFrame(renderIcons);
         }
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        renderIcons();
+        new MutationObserver(mutations => {
+            for (const m of mutations) {
+                for (const node of m.addedNodes) {
+                    if (node.nodeType === 1 && (node.matches('i[data-lucide]') || node.querySelector('i[data-lucide]'))) {
+                        schedule();
+                        return;
+                    }
+                }
+            }
+        }).observe(document.body, { childList: true, subtree: true });
     });
+})();
 
-    // Animated counters
-    const counters = document.querySelectorAll('[data-counter]');
-    counters.forEach(counter => {
-        const target = parseInt(counter.getAttribute('data-counter'));
-        let current = 0;
-        const step = Math.ceil(target / 30);
-        const update = setInterval(() => {
-            current += step;
-            if (current >= target) { current = target; clearInterval(update); }
-            counter.textContent = current;
-        }, 40);
-    });
+// ── Avisos ──
+window.showToast = function (message, type = 'success', duration = 2800) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.setAttribute('role', 'status');
+    const icon = type === 'error'
+        ? '<i data-lucide="alert-circle" class="w-5 h-5 text-bubble"></i>'
+        : '<svg class="w-5 h-5 text-bubble" aria-hidden="true"><use href="#sparkle"/></svg>';
+    toast.innerHTML = icon + '<span class="text-sm font-medium"></span>';
+    toast.querySelector('span').textContent = message;
+    document.querySelectorAll('.toast').forEach(t => t.remove());
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.style.transition = 'opacity .3s ease, transform .3s ease';
+        toast.style.opacity = '0';
+        toast.style.transform += ' translateY(10px)';
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+};
 
-    // Toast notification system
-    window.showToast = function(message, type = 'success', duration = 3000) {
-        const toast = document.createElement('div');
-        toast.className = 'toast flex items-center gap-3.5';
-        const icons = {
-            success: '<i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>',
-            error: '<i data-lucide="alert-circle" class="w-5 h-5 text-red-400"></i>',
-        };
-        toast.innerHTML = (icons[type] || icons.success) + '<span class="text-sm font-semibold tracking-wide">' + message + '</span>';
-        document.body.appendChild(toast);
-        
-        // Initialize the lucide icon in toast
-        if (window.lucide) lucide.createIcons({attrs: {class: 'w-5 h-5 text-emerald-400'}});
-
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateY(10px)';
-            toast.style.transition = 'all 0.3s ease';
-            setTimeout(() => toast.remove(), 300);
-        }, duration);
-    };
-
-    // Intercept cart add to show toast
-    document.addEventListener('alpine:initialized', () => {
-        if (Alpine.store('cart')) {
-            const original = Alpine.store('cart').addItem.bind(Alpine.store('cart'));
-            Alpine.store('cart').addItem = function(product) {
-                original(product);
-                showToast(product.name + ' agregado al carrito', 'success');
-            };
-        }
-    });
-});
-
-// Register Alpine.js store for Product Detail Modal
+// ── Panel de detalle de producto ──
 document.addEventListener('alpine:init', () => {
+    const skeleton = '<div class="p-6 space-y-4"><div class="skeleton aspect-square"></div><div class="skeleton h-6 w-2/3"></div><div class="skeleton h-4 w-1/3"></div></div>';
     Alpine.store('productDetailModal', {
         open: false,
-        open() {
+        show() {
+            const box = document.getElementById('product-detail-modal-content');
+            if (box) { box.innerHTML = skeleton; box.scrollTop = 0; }
             this.open = true;
-            // Refresh Lucide Icons once modal content is swapped
-            setTimeout(() => {
-                if (window.lucide) lucide.createIcons();
-            }, 100);
+            document.documentElement.style.overflow = 'hidden';
         },
         close() {
             this.open = false;
+            document.documentElement.style.overflow = '';
         }
     });
 });

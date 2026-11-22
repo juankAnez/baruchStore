@@ -22,6 +22,7 @@ def dashboard():
     featured_products = Product.query.filter_by(is_featured=True, is_active=True).count()
     new_products = Product.query.filter_by(is_new=True, is_active=True).count()
     latest_products = Product.query.order_by(Product.created_at.desc()).limit(5).all()
+    total_banners = Banner.query.filter_by(is_active=True).count()
 
     return render_template('admin/dashboard.html', **locals())
 
@@ -173,7 +174,7 @@ def product_edit(product_id):
     return render_template('admin/product_form.html', form=form, product=product, title='Editar Producto')
 
 
-@admin_bp.route('/products/toggle/<int:product_id>')
+@admin_bp.route('/products/toggle/<int:product_id>', methods=['POST'])
 @login_required
 def toggle_product(product_id):
     product = Product.query.get_or_404(product_id)
@@ -325,6 +326,10 @@ def category_edit(category_id):
 @login_required
 def category_delete(category_id):
     category = Category.query.get_or_404(category_id)
+    count = category.products.count()
+    if count:
+        flash(f'No se puede eliminar «{category.name}»: tiene {count} producto(s). Muévelos a otra categoría primero.', 'danger')
+        return redirect(url_for('admin.categories'))
     if category.image:
         delete_image(category.image, 'categories')
     db.session.delete(category)

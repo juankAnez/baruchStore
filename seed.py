@@ -19,14 +19,14 @@ with app.app_context():
         print('OK - Usuario admin creado (admin / admin123)')
 
     default_settings = {
-        'business_name': 'Baruch Store',
+        'business_name': 'Brillo Rosa',
         'whatsapp': '',
         'instagram': '',
         'facebook': '',
         'email': '',
         'address': '',
         'hours': '',
-        'footer_text': '(c) 2026 Baruch Store. Todos los derechos reservados.',
+        'footer_text': '(c) 2026 Brillo Rosa. Todos los derechos reservados.',
         'whatsapp_message': 'Hola! Quiero hacer un pedido:',
     }
 

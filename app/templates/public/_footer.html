@@ -1,96 +1,57 @@
-<footer class="bg-gray-900 text-gray-400">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
-            <div class="sm:col-span-2 lg:col-span-1">
-                <a href="{{ url_for('catalog.home') }}" class="flex items-center gap-2.5 mb-5 group">
-                    {% set logo = settings.get('logo', '') %}
-                    <div class="w-9 h-9 bg-brand-500 rounded-xl flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-105 shrink-0">
-                        {% if logo %}
-                        <img src="{{ url_for('static', filename='images/logo/' + logo) }}" alt="{{ settings.get('business_name', 'Baruch Store') }}" class="w-full h-full object-cover">
-                        {% else %}
-                        <span class="font-bold text-sm font-display text-gray-900">{{ settings.get('business_name', 'B')[:1] }}</span>
-                        {% endif %}
-                    </div>
-                    <span class="text-base font-display font-extrabold text-white tracking-tight">{{ settings.get('business_name', 'Baruch Store') }}</span>
-                </a>
-                <p class="text-sm text-gray-400 leading-relaxed max-w-xs">Tu catálogo digital de confianza. Productos seleccionados con los más altos estándares de calidad y diseño para tu estilo.</p>
-                <div class="flex gap-3 mt-6">
-                    {% set phone = settings.get('whatsapp', '') %}
-                    <a href="{% if phone %}https://wa.me/{{ phone|replace('+', '')|replace(' ', '') }}{% else %}{{ url_for('admin.settings') }}{% endif %}" target="{% if phone %}_blank{% endif %}" class="w-10 h-10 bg-emerald-600/10 text-emerald-400 rounded-xl flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all duration-300 border border-emerald-600/20 hover:border-emerald-600" title="WhatsApp">
-                        <i data-lucide="message-circle" class="w-5 h-5"></i>
-                    </a>
-                    {% set instagram = settings.get('instagram', '') %}
-                    <a href="{% if instagram %}https://instagram.com/{{ instagram|replace('@', '') }}{% else %}{{ url_for('admin.settings') }}{% endif %}" target="{% if instagram %}_blank{% endif %}" class="w-10 h-10 bg-pink-600/10 text-pink-400 rounded-xl flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all duration-300 border border-pink-600/20 hover:border-pink-600" title="Instagram">
-                        <i data-lucide="instagram" class="w-5 h-5"></i>
-                    </a>
-                    {% set facebook = settings.get('facebook', '') %}
-                    <a href="{% if facebook %}{{ facebook }}{% else %}{{ url_for('admin.settings') }}{% endif %}" target="{% if facebook %}_blank{% endif %}" class="w-10 h-10 bg-blue-600/10 text-blue-400 rounded-xl flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300 border border-blue-600/20 hover:border-blue-600" title="Facebook">
-                        <i data-lucide="facebook" class="w-5 h-5"></i>
-                    </a>
-                </div>
-            </div>
-            <div>
-                <h4 class="text-xs font-bold text-gray-300 uppercase tracking-widest mb-5">Navegación</h4>
-                <ul class="space-y-3">
-                    <li><a href="{{ url_for('catalog.home') }}" class="text-sm hover:text-white transition-colors">Inicio</a></li>
-                    <li><a href="{{ url_for('catalog.catalog') }}" class="text-sm hover:text-white transition-colors">Catálogo</a></li>
-                    {% for cat in categories[:4] %}
-                    <li><a href="{{ url_for('catalog.catalog', category=cat.id) }}" class="text-sm hover:text-white transition-colors">{{ cat.name }}</a></li>
-                    {% endfor %}
-                </ul>
-            </div>
-            <div>
-                <h4 class="text-xs font-bold text-gray-300 uppercase tracking-widest mb-5">Contacto</h4>
-                <ul class="space-y-3">
-                    <li>
-                        <a href="{% if phone %}https://wa.me/{{ phone|replace('+', '')|replace(' ', '') }}{% else %}{{ url_for('admin.settings') }}{% endif %}" target="{% if phone %}_blank{% endif %}" class="text-sm hover:text-white flex items-center gap-2.5 transition-colors group">
-                            <span class="w-8 h-8 rounded-lg bg-emerald-600/10 text-emerald-400 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shrink-0">
-                                <i data-lucide="message-circle" class="w-4 h-4"></i>
-                            </span>
-                            <span>{{ 'WhatsApp Directo' if phone else 'Configurar WhatsApp' }}</span>
-                        </a>
-                    </li>
-                    {% set email = settings.get('email', '') %}
-                    <li>
-                        <a href="{% if email %}mailto:{{ email }}{% else %}{{ url_for('admin.settings') }}{% endif %}" class="text-sm hover:text-white flex items-center gap-2.5 transition-colors group">
-                            <span class="w-8 h-8 rounded-lg bg-blue-600/10 text-blue-400 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shrink-0">
-                                <i data-lucide="mail" class="w-4 h-4"></i>
-                            </span>
-                            <span>{{ email if email else 'Sin correo configurado' }}</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="text-xs font-bold text-gray-300 uppercase tracking-widest mb-5">Información</h4>
-                <ul class="space-y-3 text-sm">
-                    {% set address = settings.get('address', '') %}
-                    {% if address %}
-                    <li class="flex items-start gap-2.5 text-gray-400">
-                        <span class="w-8 h-8 rounded-lg bg-gray-800 text-gray-500 flex items-center justify-center shrink-0">
-                            <i data-lucide="map-pin" class="w-4 h-4"></i>
-                        </span>
-                        <span class="pt-1.5">{{ address }}</span>
-                    </li>
-                    {% endif %}
-                    {% set hours = settings.get('hours', '') %}
-                    {% if hours %}
-                    <li class="flex items-start gap-2.5 text-gray-400">
-                        <span class="w-8 h-8 rounded-lg bg-gray-800 text-gray-500 flex items-center justify-center shrink-0">
-                            <i data-lucide="clock" class="w-4 h-4"></i>
-                        </span>
-                        <span class="pt-1.5">{{ hours }}</span>
-                    </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-        <div class="py-6 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-500">
-            <span>{{ settings.get('footer_text', '© 2026 Baruch Store. Todos los derechos reservados.') }}</span>
-            <a href="{{ url_for('auth.login') }}" class="hover:text-gray-300 transition-colors inline-flex items-center gap-1">
-                <i data-lucide="shield" class="w-3 h-3"></i>
-                Admin
-            </a>
-        </div>
+{% set phone = (settings.get('whatsapp') or '')|replace('+', '')|replace(' ', '')|replace('-', '') %}
+{% set instagram = (settings.get('instagram') or '')|replace('@', '')|trim %}
+{% set facebook = settings.get('facebook') or '' %}
+{% set email = settings.get('email') or '' %}
+{% set address = settings.get('address') or '' %}
+{% set hours = settings.get('hours') or '' %}
+<footer class="relative bg-ink-950 text-ink-200 overflow-hidden mt-8">
+  <div aria-hidden="true" class="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] aspect-square rounded-full bg-[radial-gradient(closest-side,rgba(224,0,106,0.35),transparent)]"></div>
+
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-10">
+    <div class="grid gap-12 lg:grid-cols-12">
+      <div class="lg:col-span-5">
+        <p class="font-display text-4xl sm:text-5xl font-light italic leading-tight text-white text-balance">Gracias por brillar con nosotras.</p>
+        {% if phone %}
+        <a href="https://wa.me/{{ phone }}" target="_blank" rel="noopener" class="btn-primary btn-shine mt-8">
+          <i data-lucide="message-circle" class="w-[18px] h-[18px]"></i>
+          Escríbenos por WhatsApp
+        </a>
+        {% endif %}
+      </div>
+
+      <div class="lg:col-span-3 lg:col-start-7">
+        <h2 class="text-sm font-semibold text-white">Tienda</h2>
+        <ul class="mt-4 space-y-2.5">
+          <li><a href="{{ url_for('catalog.home') }}" class="link-line hover:text-white">Inicio</a></li>
+          <li><a href="{{ url_for('catalog.catalog') }}" class="link-line hover:text-white">Catálogo</a></li>
+          {% for cat in categories[:5] %}
+          <li><a href="{{ url_for('catalog.catalog', category=cat.id) }}" class="link-line hover:text-white">{{ cat.name }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      {% if phone or instagram or facebook or email or address or hours %}
+      <div class="lg:col-span-3">
+        <h2 class="text-sm font-semibold text-white">Contacto</h2>
+        <ul class="mt-4 space-y-2.5">
+          {% if instagram %}<li><a href="https://instagram.com/{{ instagram }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 hover:text-white"><i data-lucide="instagram" class="w-4 h-4 text-bubble"></i><span class="link-line">@{{ instagram }}</span></a></li>{% endif %}
+          {% if facebook %}<li><a href="{{ facebook }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 hover:text-white"><i data-lucide="facebook" class="w-4 h-4 text-bubble"></i><span class="link-line">Facebook</span></a></li>{% endif %}
+          {% if email %}<li><a href="mailto:{{ email }}" class="inline-flex items-center gap-2 hover:text-white"><i data-lucide="mail" class="w-4 h-4 text-bubble"></i><span class="link-line">{{ email }}</span></a></li>{% endif %}
+          {% if address %}<li class="flex items-start gap-2"><i data-lucide="map-pin" class="w-4 h-4 mt-1 text-bubble shrink-0"></i>{{ address }}</li>{% endif %}
+          {% if hours %}<li class="flex items-start gap-2"><i data-lucide="clock" class="w-4 h-4 mt-1 text-bubble shrink-0"></i>{{ hours }}</li>{% endif %}
+        </ul>
+      </div>
+      {% endif %}
     </div>
+
+    <!-- Nombre gigante -->
+    <p aria-hidden="true" class="mt-20 font-display font-medium tracking-tight leading-[0.8] text-[15vw] lg:text-[11.5rem] whitespace-nowrap bg-gradient-to-b from-brand-400 to-brand-700 bg-clip-text text-transparent select-none">
+      {{ store_name }}
+    </p>
+
+    <div class="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-ink-400">
+      <span>{{ settings.get('footer_text') or '© ' ~ store_name ~ '. Todos los derechos reservados.' }}</span>
+      <a href="{{ url_for('auth.login') }}" class="hover:text-white transition-colors">Administrar tienda</a>
+    </div>
+  </div>
 </footer>

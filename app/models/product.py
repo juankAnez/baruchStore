@@ -38,6 +38,17 @@ class Product(db.Model):
         return first.filename if first else None
 
     @property
+    def cart_payload(self):
+        """Datos para el carrito; en plantillas usar con |tojson|forceescape."""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'price': float(self.price),
+            'image': self.primary_image or '',
+            'slug': self.slug,
+        }
+
+    @property
     def discount_percent(self):
         if self.old_price and self.old_price > self.price:
             return int(((self.old_price - self.price) / self.old_price) * 100)

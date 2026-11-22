@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
-Sitemap: https://baruchstore.com/sitemap.xml
+Disallow: /admin/
+Disallow: /auth/
